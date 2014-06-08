@@ -3,8 +3,16 @@ if myHero.charName ~= "Sivir" then return end
 require "SOW"
 require "VPrediction"
 
---[[		Code		]]
+--[[		Auto Update		]]
+local AUTOUPDATE = true
+local SCRIPT_NAME = "Fantastik Sivir"
 local sversion = "0.01"
+
+if AUTOUPDATE then
+SourceUpdater(SCRIPT_NAME, version, "raw.github.com", "/BoLFantastik/BoL/master/"..SCRIPT_NAME..".lua", SCRIPT_PATH .. GetCurrentEnv().FILE_NAME, "/BoLFantastik/BoL/master/version/"..SCRIPT_NAME..".version"):CheckUpdate()
+end
+
+--[[		Code		]]
 local sauthor = "Fantastik"
 local QREADY, WREADY, EREADY, RREADY = false
 local Qrange, Qwidth, Qspeed, Qdelay = 1075, 85, 1350, 0.250
