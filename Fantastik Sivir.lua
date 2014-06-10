@@ -83,6 +83,8 @@ function Checks()
 	EREADY = (myHero:CanUseSpell(_E) == READY)
 	RREADY = (myHero:CanUseSpell(_R) == READY)
   	IREADY = (ignite ~= nil and myHero:CanUseSpell(ignite) == READY)
+	
+	Qrange = SivMenu.Combo.Qrangemin
 end
 
 function IgniteCheck()
@@ -113,17 +115,18 @@ end
 
 function SMenu()
 	SivMenu = scriptConfig("Fantastik Sivir", "Sivir")
-	SivMenu:addParam("combokey", "Combo key", SCRIPT_PARAM_ONKEYDOWN, false, 32)
-	SivMenu:addParam("pokekey", "Poke key", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("C"))
+	SivMenu:addParam("combokey", "Combo key(Space)", SCRIPT_PARAM_ONKEYDOWN, false, 32)
+	SivMenu:addParam("pokekey", "Poke key(C)", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("C"))
 	SivMenu:addParam("Version", "Version", SCRIPT_PARAM_INFO, sversion)
 	SivMenu:addParam("Author", "Author", SCRIPT_PARAM_INFO, sauthor)
 	SivMenu:addTS(ts)
 	SivMenu:addSubMenu("Combo", "Combo")
 --	SivMenu.Combo:addParam("combokey", "Combo key", SCRIPT_PARAM_ONKEYDOWN, false, 32)
 	SivMenu.Combo:addParam("comboQ", "Use Q", SCRIPT_PARAM_ONOFF, true)
+	SivMenu.Combo:addParam("Qrangemin", "Min. range for Q ", SCRIPT_PARAM_SLICE, 1075, 600, 1075, 0)
 	SivMenu.Combo:addParam("comboW", "Use W", SCRIPT_PARAM_ONOFF, true)
 	SivMenu.Combo:addParam("comboR", "Use R", SCRIPT_PARAM_ONOFF, true)
-	SivMenu.Combo:addParam("minEnemiesR", "Min. no. of enemies for R", SCRIPT_PARAM_SLICE, 1, 1, 5, 0)
+	SivMenu.Combo:addParam("minEnemiesR", "Min. no. of enemies for R ", SCRIPT_PARAM_SLICE, 1, 1, 5, 0)
 	
 	SivMenu:addSubMenu("Poke", "Poke")
 --	SivMenu.Poke:addParam("pokekey", "Poke key", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("C"))
