@@ -19,7 +19,7 @@ if AUTOUPDATE then
 	if ServerData then
 		ServerVersion = type(tonumber(ServerData)) == "number" and tonumber(ServerData) or nil
 		if ServerVersion then
-			if tonumber(version) < ServerVersion then
+			if tonumber(sversion) < ServerVersion then
 				_AutoupdaterMsg("New version available"..ServerVersion)
 				_AutoupdaterMsg("Updating, please don't press F9")
 				DelayAction(function() DownloadFile(UPDATE_URL, UPDATE_FILE_PATH, function () _AutoupdaterMsg("Successfully updated. ("..version.." => "..ServerVersion.."), press F9 twice to load the updated version.") end) end, 3)
