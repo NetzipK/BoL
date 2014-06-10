@@ -127,6 +127,7 @@ function SMenu()
 	SivMenu.Combo:addParam("comboW", "Use W", SCRIPT_PARAM_ONOFF, true)
 	SivMenu.Combo:addParam("comboR", "Use R", SCRIPT_PARAM_ONOFF, true)
 	SivMenu.Combo:addParam("minEnemiesR", "Min. no. of enemies for R ", SCRIPT_PARAM_SLICE, 1, 1, 5, 0)
+	SivMenu.Combo:addParam("manapls", "Min. % mana for spells ", SCRIPT_PARAM_SLICE, 30, 1, 100, 0)
 	
 	SivMenu:addSubMenu("Poke", "Poke")
 --	SivMenu.Poke:addParam("pokekey", "Poke key", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("C"))
@@ -174,7 +175,7 @@ function EvadeeeHelper()
 end
 
 function Combo()
-  if ValidTarget(target) then
+  if ValidTarget(target) and ManaManager() then
 		if QREADY and SivMenu.Combo.comboQ then
         if VIP_USER then
 			local CastPos = VP:GetLineCastPosition(target, Qdelay, Qwidth, Qrange, Qspeed, myHero, true)
@@ -208,6 +209,14 @@ function Poke()
        end
 	end
    end
+end
+
+function ManaManager()
+	if myHero.mana >= myHero.maxMana * (SivMenu.Combo.manapls / 100) then
+	return true
+	else
+	return false
+	end	 
 end
 
 function CastR()
