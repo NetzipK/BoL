@@ -1,5 +1,64 @@
 if myHero.charName ~= "Sivir" then return end
+--[[
+	
 
+
+
+				/$$$$$$$$                   /$$                           /$$     /$$ /$$              /$$$$$$  /$$            /$$          
+				| $$_____/                  | $$                          | $$    |__/| $$             /$$__  $$|__/           |__/          
+				| $$    /$$$$$$  /$$$$$$$  /$$$$$$    /$$$$$$   /$$$$$$$ /$$$$$$   /$$| $$   /$$      | $$  \__/ /$$ /$$    /$$ /$$  /$$$$$$ 
+				| $$$$$|____  $$| $$__  $$|_  $$_/   |____  $$ /$$_____/|_  $$_/  | $$| $$  /$$/      |  $$$$$$ | $$|  $$  /$$/| $$ /$$__  $$
+				| $$__/ /$$$$$$$| $$  \ $$  | $$      /$$$$$$$|  $$$$$$   | $$    | $$| $$$$$$/        \____  $$| $$ \  $$/$$/ | $$| $$  \__/
+				| $$   /$$__  $$| $$  | $$  | $$ /$$ /$$__  $$ \____  $$  | $$ /$$| $$| $$_  $$        /$$  \ $$| $$  \  $$$/  | $$| $$      
+				| $$  |  $$$$$$$| $$  | $$  |  $$$$/|  $$$$$$$ /$$$$$$$/  |  $$$$/| $$| $$ \  $$      |  $$$$$$/| $$   \  $/   | $$| $$      
+				|__/   \_______/|__/  |__/   \___/   \_______/|_______/    \___/  |__/|__/  \__/       \______/ |__/    \_/    |__/|__/      
+
+
+				
+				Credits: Fantastik - Scripting the most parts, original creator 
+					 Pathetik - Ideas, helping me to create
+					 QQQ - Also helping, fixing problems and teaching me stuff
+						 
+				How to install: Go to Custom Scripts tab and press New Script. Paste the script inside there and click Save Script.
+				!ATTENTION!: Name it exactly "Fantastik Sivir".
+
+				Features:
+				
+	                                    Key  |                  What it does
+			                ------------------------------------------------------------------------------------
+					 Spacebar| Combo key - Uses Q, W and R. Spell usage can be disabled.
+					------------------------------------------------------------------------------------
+					    Z    | Poke key - Uses Q and AA to poke the enemy. Spell usage can be disabled.
+					------------------------------------------------------------------------------------
+					    X    | Last Hit - Last hits the minions with AA.
+					------------------------------------------------------------------------------------
+					    C	 | Mixed Mode - Both last hit and poke.
+					------------------------------------------------------------------------------------
+					    V    | Lane Clear - Name says it all(currently only supports AA).
+					------------------------------------------------------------------------------------
+					
+				Other features:
+				
+				*	Free users & VIP users support!
+				*	Slice for minimum amount of enemies for R!
+				*	Slice for Q range!
+				*	Slice for mana manager!
+				*	Evadeee integration for E!
+				*	Auto Ignite in combo and if killable(KS)!
+				*	Auto Q kill if killable!
+				*	More to come soon!
+					
+				
+				Changelog:	
+				
+				* v 0.2:
+				 Added Auto Update
+				 Minor fixes
+				 Improvements
+				
+				* v 0.1:
+				 Release
+]]
 require "SOW"
 if VIP_USER then
 	require "VPrediction"
@@ -116,7 +175,7 @@ end
 function SMenu()
 	SivMenu = scriptConfig("Fantastik Sivir", "Sivir")
 	SivMenu:addParam("combokey", "Combo key(Space)", SCRIPT_PARAM_ONKEYDOWN, false, 32)
-	SivMenu:addParam("pokekey", "Poke key(C)", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("C"))
+	SivMenu:addParam("pokekey", "Poke key(Z)", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("Z"))
 	SivMenu:addParam("Version", "Version", SCRIPT_PARAM_INFO, sversion)
 	SivMenu:addParam("Author", "Author", SCRIPT_PARAM_INFO, sauthor)
 	SivMenu:addTS(ts)
@@ -141,7 +200,7 @@ function SMenu()
 	SOWi:LoadToMenu(SivMenu.Orbwalker)
 	
 	SivMenu:addSubMenu("Extra", "Extra")
-	SivMenu.Extra:addParam("AutoLev", "Auto level skill", SCRIPT_PARAM_ONOFF, false)
+--	SivMenu.Extra:addParam("AutoLev", "Auto level skill", SCRIPT_PARAM_ONOFF, false)
 	SivMenu.Extra:addParam("KS", "Auto Killsteal", SCRIPT_PARAM_ONOFF, true)
 	SivMenu.Extra:addParam("Ignite", "Use Auto Ignite", SCRIPT_PARAM_ONOFF, true)
 	if _G.Evadeee_Loaded then
