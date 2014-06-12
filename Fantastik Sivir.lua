@@ -164,8 +164,12 @@ function OnDraw()
 end
 
 function SLoadLib()
-    VP = VPrediction(true)
-    SOWi = SOW(VP)
+	if VIP_USER then
+	VP = VPrediction(true)
+	SOWi = SOW(VP)
+	else
+    SOWi = SOW()
+	end
 	SMenu()
 end
 
