@@ -15,6 +15,7 @@ if myHero.charName ~= "Sivir" then return end
 Credits: Fantastik - Scripting the most parts, original creator 
          CrazyDud - Ideas, helping me to create
          QQQ - Also helping, fixing problems and teaching me stuff
+		 dienofail - Helping me with some errors
 
 How to install: Go to Custom Scripts tab and press New Script. Paste the script inside there and click Save Script.
 !ATTENTION!: Name it exactly "Fantastik Sivir".
