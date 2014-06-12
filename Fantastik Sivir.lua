@@ -232,14 +232,11 @@ end
 function Combo()
   if ValidTarget(target) and ManaManager() then
 		if QREADY and SivMenu.Combo.comboQ then
-        if VIP_USER then
 			local CastPos = VP:GetLineCastPosition(target, Qdelay, Qwidth, Qrange, Qspeed, myHero, true)
 			if GetDistance(target) <= Qrange and QREADY then
 				CastSpell(_Q, CastPos.x, CastPos.z)
 			end
-        else
-        CastSpell(_Q, target.x, target.z)
-        end
+        CastSpell(_Q, target.x, target.z) 
 	end
 	if WREADY and SivMenu.Combo.comboW and GetDistance(target) <= 600 then
 		CastSpell(_W)
