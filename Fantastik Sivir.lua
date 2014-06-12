@@ -57,9 +57,7 @@ Changelog:
  Release
 ]]
 require "SOW"
-if VIP_USER then
-	require "VPrediction"
-end
+require "VPrediction"
 
 --[[		Auto Update		]]
 local sversion = "0.2"
@@ -164,12 +162,8 @@ function OnDraw()
 end
 
 function SLoadLib()
-	if VIP_USER then
 	VP = VPrediction(true)
 	SOWi = SOW(VP)
-	else
-    SOWi = SOW()
-	end
 	SMenu()
 end
 
