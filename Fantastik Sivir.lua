@@ -25,7 +25,7 @@ Features:
 ------------------------------------------------------------------------------------
 Spacebar | Combo key - Uses Q, W and R. Spell usage can be disabled.
 ------------------------------------------------------------------------------------
-    Z    | Poke key - Uses Q and AA to poke the enemy. Spell usage can be disabled.
+    Z    | Poke key - Uses Q to poke the enemy. Can be disabled.
 ------------------------------------------------------------------------------------
     X    | Last Hit - Last hits the minions with AA.
 ------------------------------------------------------------------------------------
@@ -65,13 +65,13 @@ end
 local sversion = "0.2"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
-local UPDATE_PATH = "/BoLFantastik/BoL/master/Fantastik%20Sivir.lua".."?rand="..math.random(1,10000)
-local UPDATE_FILE_PATH = SCRIPT_PATH.."Fantastik%20Sivir.lua"
+local UPDATE_PATH = "/BoLFantastik/BoL/master/Fantastik Sivir.lua".."?rand="..math.random(1,10000)
+local UPDATE_FILE_PATH = SCRIPT_PATH.."Fantastik Sivir.lua"
 local UPDATE_URL = "https://"..UPDATE_HOST..UPDATE_PATH
 
 function AutoupdaterMsg(msg) print("<font color=\"#6699ff\"><b>Fantastik Sivir:</b></font> <font color=\"#FFFFFF\">"..msg..".</font>") end
 if AUTOUPDATE then
-	local ServerData = GetWebResult(UPDATE_HOST, "/BoLFantastik/BoL/master/version/Fantastik%20Sivir.version")
+	local ServerData = GetWebResult(UPDATE_HOST, "/BoLFantastik/BoL/master/version/Fantastik Sivir.version")
 	if ServerData then
 		ServerVersion = type(tonumber(ServerData)) == "number" and tonumber(ServerData) or nil
 		if ServerVersion then
