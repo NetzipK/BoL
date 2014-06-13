@@ -15,7 +15,8 @@ if myHero.charName ~= "Sivir" then return end
 Credits: Fantastik - Scripting the most parts, original creator 
          CrazyDud - Ideas, helping me to create
          QQQ - Also helping, fixing problems and teaching me stuff
-		 dienofail - Helping me with some errors
+		 Honda7 - Common Honda7 stuff
+		 Anyone else that I might have forgotten
 
 How to install: Go to Custom Scripts tab and press New Script. Paste the script inside there and click Save Script.
 !ATTENTION!: Name it exactly "Fantastik Sivir".
@@ -49,6 +50,10 @@ Other features:
 
 Changelog:	
 
+* v 0.3
+ Added reqiured Libs download.
+ Combo Q fix for free users.
+
 * v 0.2:
  Added Auto Update
  Minor fixes
@@ -57,11 +62,9 @@ Changelog:
 * v 0.1:
  Release
 ]]
-require "SOW"
-require "VPrediction"
 
 --[[		Auto Update		]]
-local sversion = "0.2"
+local sversion = "0.3"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BoLFantastik/BoL/master/Fantastik Sivir.lua".."?rand="..math.random(1,10000)
@@ -86,6 +89,38 @@ if AUTOUPDATE then
 		AutoupdaterMsg("Error downloading version info")
 	end
 end
+
+local REQUIRED_LIBS = 
+	{
+		["VPrediction"] = "https://raw.github.com/Hellsing/BoL/master/common/VPrediction.lua",
+		["SOW"] = "https://raw.github.com/Hellsing/BoL/master/common/SOW.lua",
+	}		
+local DOWNLOADING_LIBS = false
+local DOWNLOAD_COUNT = 0
+local SELF_NAME = GetCurrentEnv() and GetCurrentEnv().FILE_NAME or ""
+
+for DOWNLOAD_LIB_NAME, DOWNLOAD_LIB_URL in pairs(REQUIRED_LIBS) do
+	if FileExist(LIB_PATH .. DOWNLOAD_LIB_NAME .. ".lua") then
+		require(DOWNLOAD_LIB_NAME)
+	else
+		DOWNLOADING_LIBS = true
+		DOWNLOAD_COUNT = DOWNLOAD_COUNT + 1
+
+		print("<font color=\"#00FF00\">Fantastik Sivir:</font><font color=\"#FFDFBF\"> Not all required libraries are installed. Downloading: <b><u><font color=\"#73B9FF\">"..DOWNLOAD_LIB_NAME.."</font></u></b> now! Please don't press [F9]!</font>")
+		print("Download started")
+		DownloadFile(DOWNLOAD_LIB_URL, LIB_PATH .. DOWNLOAD_LIB_NAME..".lua", AfterDownload)
+		print("Download finished")
+	end
+end
+
+function AfterDownload()
+	DOWNLOAD_COUNT = DOWNLOAD_COUNT - 1
+	if DOWNLOAD_COUNT == 0 then
+		DOWNLOADING_LIBS = false
+		print("<font color=\"#00FF00\">Fantastik Sivir:</font><font color=\"#FFDFBF\"> Required libraries downloaded successfully, please reload (double [F9]).</font>")
+	end
+end
+if DOWNLOADING_LIBS then return end
 
 --[[		Code		]]
 local sauthor = "Fantastik"
