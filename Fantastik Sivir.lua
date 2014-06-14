@@ -67,7 +67,7 @@ Changelog:
 ]]
 
 --[[		Auto Update		]]
-local sversion = "0.3"
+local sversion = "0.4"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BoLFantastik/BoL/master/Fantastik Sivir.lua".."?rand="..math.random(1,10000)
