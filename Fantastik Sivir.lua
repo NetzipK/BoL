@@ -50,6 +50,9 @@ Other features:
 
 Changelog:	
 
+* v 0.4
+ Added AA reset with W
+
 * v 0.3
  Added reqiured Libs download.
  Combo Q fix for free users.
@@ -211,7 +214,6 @@ function SMenu()
 	SivMenu:addParam("Author", "Author", SCRIPT_PARAM_INFO, sauthor)
 	SivMenu:addTS(ts)
 	SivMenu:addSubMenu("Combo", "Combo")
---	SivMenu.Combo:addParam("combokey", "Combo key", SCRIPT_PARAM_ONKEYDOWN, false, 32)
 	SivMenu.Combo:addParam("comboQ", "Use Q", SCRIPT_PARAM_ONOFF, true)
 	SivMenu.Combo:addParam("Qrangemin", "Min. range for Q ", SCRIPT_PARAM_SLICE, 1075, 600, 1075, 0)
 	SivMenu.Combo:addParam("comboW", "Use W", SCRIPT_PARAM_ONOFF, true)
@@ -220,7 +222,6 @@ function SMenu()
 	SivMenu.Combo:addParam("manapls", "Min. % mana for spells ", SCRIPT_PARAM_SLICE, 30, 1, 100, 0)
 	
 	SivMenu:addSubMenu("Poke", "Poke")
---	SivMenu.Poke:addParam("pokekey", "Poke key", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("C"))
 	SivMenu.Poke:addParam("pokeQ", "Use Q", SCRIPT_PARAM_ONOFF, true)	
 	
 	SivMenu:addSubMenu("Drawing", "Drawing")
@@ -265,21 +266,17 @@ function EvadeeeHelper()
 end
 
 function Combo()
-  if ValidTarget(target) and ManaManager() then
+if ValidTarget(target) and ManaManager() then
 		if QREADY and SivMenu.Combo.comboQ then
 			local CastPos = VP:GetLineCastPosition(target, Qdelay, Qwidth, Qrange, Qspeed, myHero, true)
 			if GetDistance(target) <= Qrange and QREADY then
 				CastSpell(_Q, CastPos.x, CastPos.z)
 			end
-        CastSpell(_Q, target.x, target.z) 
-	end
-	if WREADY and SivMenu.Combo.comboW and GetDistance(target) <= 600 then
-		CastSpell(_W)
-	end
+		end
 	if RREADY and SivMenu.Combo.comboR and GetDistance(target) <= 600 then
 		CastR()
 	end
-  end
+end
 end
 
 function Poke()
@@ -298,6 +295,13 @@ function Poke()
    end
 end
 
+function OnProcessSpell(unit, spell)
+if unit == myHero and spell.name:lower():find("attack") then
+    if SivMenu.combokey and WREADY and SivMenu.Combo.comboW and GetDistance(target) <= 600 then
+		DelayAction(function() CastSpell(_W) end, spell.windUpTime + GetLatency() / 2000)
+	end
+end
+
 function ManaManager()
 	if myHero.mana >= myHero.maxMana * (SivMenu.Combo.manapls / 100) then
 	return true
@@ -310,4 +314,5 @@ function CastR()
 	if SivMenu.Combo.minEnemiesR <= CountEnemyHeroInRange(600) then
 		CastSpell(_R)
 	end
+end
 end
