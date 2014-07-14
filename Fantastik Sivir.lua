@@ -33,7 +33,7 @@ Spacebar | Combo key - Uses Q, W and R. Spell usage can be disabled.
 ------------------------------------------------------------------------------------
     C	 | Mixed Mode - Both last hit and poke.
 ------------------------------------------------------------------------------------
-    V    | Lane Clear - Name says it all(currently only supports AA).
+    V    | Lane Clear - Lane clear with AA and Q.
 ------------------------------------------------------------------------------------
 
 Other features:
@@ -41,7 +41,9 @@ Other features:
 *	Free users & VIP users support!
 *	Slice for minimum amount of enemies for R!
 *	Slice for Q range!
-*	Slice for mana manager!
+*	Slice for mana manager for combo!
+*	Smart lane clear using Q!
+*	Slice for mana manager for farm!
 *	Evadeee integration for E!
 *	Auto Ignite in combo and if killable(KS)!
 *	Auto Q kill if killable!
@@ -49,6 +51,10 @@ Other features:
 
 
 Changelog:	
+
+* v 0.5
+ Added Q for farm, will check for best pos to Q
+ Added Q farm mana manager
 
 * v 0.4
  Added AA reset with W
@@ -67,7 +73,7 @@ Changelog:
 ]]
 
 --[[		Auto Update		]]
-local sversion = "0.4"
+local sversion = "0.5"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BoLFantastik/BoL/master/Fantastik Sivir.lua".."?rand="..math.random(1,10000)
@@ -165,6 +171,9 @@ function OnTick()
    if SivMenu.pokekey then
 		Poke()
    end
+   if SivMenu.farmkey then
+		FarmQ()
+   end
    if SivMenu.Extra.Evade then
        EvadeeeHelper()
    end
@@ -201,6 +210,7 @@ function OnDraw()
 end
 
 function SLoadLib()
+	EnemyMinions = minionManager(MINION_ENEMY, Qrange, myHero, MINION_SORT_MAXHEALTH_DEC)
 	VP = VPrediction(true)
 	SOWi = SOW(VP)
 	SMenu()
@@ -210,6 +220,7 @@ function SMenu()
 	SivMenu = scriptConfig("Fantastik Sivir", "Sivir")
 	SivMenu:addParam("combokey", "Combo key(Space)", SCRIPT_PARAM_ONKEYDOWN, false, 32)
 	SivMenu:addParam("pokekey", "Poke key(Z)", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("Z"))
+	SivMenu:addParam("farmkey", "Farm key(V)", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("V"))
 	SivMenu:addParam("Version", "Version", SCRIPT_PARAM_INFO, sversion)
 	SivMenu:addParam("Author", "Author", SCRIPT_PARAM_INFO, sauthor)
 	SivMenu:addTS(ts)
@@ -222,7 +233,11 @@ function SMenu()
 	SivMenu.Combo:addParam("manapls", "Min. % mana for spells ", SCRIPT_PARAM_SLICE, 30, 1, 100, 0)
 	
 	SivMenu:addSubMenu("Poke", "Poke")
-	SivMenu.Poke:addParam("pokeQ", "Use Q", SCRIPT_PARAM_ONOFF, true)	
+	SivMenu.Poke:addParam("pokeQ", "Use Q", SCRIPT_PARAM_ONOFF, true)
+
+	SivMenu:addSubMenu("Farm", "Farm")
+	SivMenu.Farm:addParam("farmQ", "Use Q", SCRIPT_PARAM_ONOFF, true)
+	SivMenu.Farm:addParam("manafarm", "Min. % mana for Q", SCRIPT_PARAM_SLICE, 30, 1, 100, 0)
 	
 	SivMenu:addSubMenu("Drawing", "Drawing")
 	SivMenu.Drawing:addParam("DrawAA", "Draw AA Range", SCRIPT_PARAM_ONOFF, true)
@@ -240,6 +255,7 @@ function SMenu()
 	end
 	SivMenu:permaShow("combokey")
 	SivMenu:permaShow("pokekey")
+	SivMenu:permaShow("farmkey")
 end
 
 function KS(Target)
@@ -295,11 +311,59 @@ function Poke()
    end
 end
 
+function GetBestQPositionFarm()
+  local MaxQPos
+  local MaxQ = 0
+  for i, minion in pairs(EnemyMinions.objects) do
+    local hitQ = CountMinionsHit(minion)
+    if hitQ > MaxQ or MaxQPos == nil then
+      MaxQPos = minion
+      MaxQ = hitQ
+    end
+  end
+
+  if MaxQPos then
+    return MaxQPos
+  else
+    return nil
+  end
+end
+
+function CastQFarm(to)
+  CastSpell(_Q, to.x, to.z)
+end
+
+function FarmQ()
+	if ManaManagerFarm() then
+	EnemyMinions:update()
+	if SivMenu.Farm.farmQ then
+		if QREADY and #EnemyMinions.objects > 0 then
+			for i, minion in pairs(EnemyMinions.objects) do
+		    if GetDistance(minion) < Qrange then
+				local QPos = GetBestQPositionFarm()
+				if QPos then
+					CastQFarm(QPos)
+				end
+			end
+		end
+	end
+	end
+end
+end
+
 function OnProcessSpell(unit, spell)
 if unit == myHero and spell.name:lower():find("attack") then
     if SivMenu.combokey and WREADY and SivMenu.Combo.comboW and GetDistance(target) <= 600 then
 		DelayAction(function() CastSpell(_W) end, spell.windUpTime + GetLatency() / 2000)
 	end
+end
+
+function ManaManagerFarm()
+	if myHero.mana >= myHero.maxMana * (SivMenu.Farm.manafarm / 100) then
+	return true
+	else
+	return false
+	end	 
 end
 
 function ManaManager()
@@ -315,4 +379,16 @@ function CastR()
 		CastSpell(_R)
 	end
 end
+end
+
+function CountMinionsHit(QPos)
+  local LineEnd = Vector(myHero) + Qrange * (Vector(QPos) - Vector(myHero)):normalized()
+  local n = 0
+  for i, minion in pairs(EnemyMinions.objects) do
+    local pointSegment, pointLine, isOnSegment = VectorPointProjectionOnLineSegment(Vector(myHero), LineEnd, minion)
+    if isOnSegment and GetDistance(minion, pointSegment) <= 85*1.25 then
+      n = n + 1
+    end
+  end
+  return n
 end
