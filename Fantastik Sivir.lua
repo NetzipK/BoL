@@ -47,10 +47,16 @@ Other features:
 *	Evadeee integration for E!
 *	Auto Ignite in combo and if killable(KS)!
 *	Auto Q kill if killable!
+*	In-Game skin changer(Sadly VIP only)!
+*	Auto level spells!
 *	More to come soon!
 
 
 Changelog:	
+
+* v 0.6
+ Added In-Game skin hack changer, thanks to shalzuth
+ Added Auto spell leveler
 
 * v 0.5
  Added Q for farm, will check for best pos to Q
@@ -73,7 +79,7 @@ Changelog:
 ]]
 
 --[[		Auto Update		]]
-local sversion = "0.5"
+local sversion = "0.6"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BoLFantastik/BoL/master/Fantastik Sivir.lua".."?rand="..math.random(1,10000)
@@ -141,6 +147,7 @@ local iDmg = 0
 local target = nil
 local ts
 local ts = TargetSelector(TARGET_LESS_CAST_PRIORITY, Qrange, DAMAGE_PHYSICAL, true)
+local oldlvl = 0
 
 ----------------------------------------------
 
@@ -187,6 +194,9 @@ function Checks()
   	IREADY = (ignite ~= nil and myHero:CanUseSpell(ignite) == READY)
 	
 	Qrange = SivMenu.Combo.Qrangemin
+	
+	SkinHack()
+	AutoLevel()
 end
 
 function IgniteCheck()
@@ -214,6 +224,7 @@ function SLoadLib()
 	VP = VPrediction(true)
 	SOWi = SOW(VP)
 	SMenu()
+	CurSkin = 0
 end
 
 function SMenu()
@@ -247,9 +258,14 @@ function SMenu()
 	SOWi:LoadToMenu(SivMenu.Orbwalker)
 	
 	SivMenu:addSubMenu("Extra", "Extra")
---	SivMenu.Extra:addParam("AutoLev", "Auto level skill", SCRIPT_PARAM_ONOFF, false)
 	SivMenu.Extra:addParam("KS", "Auto Killsteal", SCRIPT_PARAM_ONOFF, true)
 	SivMenu.Extra:addParam("Ignite", "Use Auto Ignite", SCRIPT_PARAM_ONOFF, true)
+	SivMenu.Extra:addSubMenu("Auto level spells", "autolev")
+	SivMenu.Extra.autolev:addParam("enabled", "Enable auto level spells", SCRIPT_PARAM_ONOFF, false)
+	SivMenu.Extra.autolev:addParam("lvlseq", "Select your auto level sequence: ", SCRIPT_PARAM_LIST, 1, {"R>Q>W>E", "R>Q>E>W", "R>W>Q>E", "R>W>E>Q", "R>E>Q>W", "R>E>W>Q"})
+	SivMenu.Extra:addSubMenu("Skin Hack - VIP ONLY", "skinhax")
+	SivMenu.Extra.skinhax:addParam("enabled", "Enable Skin Hack", SCRIPT_PARAM_ONOFF, false)
+	SivMenu.Extra.skinhax:addParam("skinid", "Choose skin: ", SCRIPT_PARAM_LIST, 1, {"No Skin", "Warrior Princess", "Spectacular", "Huntress", "Bandit", "PAX", "Snowstorm"})
 	if _G.Evadeee_Loaded then
 		SivMenu.Extra:addParam("Evade", "Use Evadeee Integration", SCRIPT_PARAM_ONOFF, true)
 	end
@@ -391,4 +407,80 @@ function CountMinionsHit(QPos)
     end
   end
   return n
+end
+
+function AutoLevel()
+	if SivMenu.Extra.autolev.enabled then
+		if myHero.level > oldlvl then
+			oldlvl = oldlvl + 1
+			if SivMenu.Extra.autolev.lvlseq == 1 then
+				LevelSpell(_R)
+				LevelSpell(_Q)
+				LevelSpell(_W)
+				LevelSpell(_E)
+			end
+			if SivMenu.Extra.autolev.lvlseq == 2 then
+				LevelSpell(_R)
+				LevelSpell(_Q)
+				LevelSpell(_E)
+				LevelSpell(_W)
+			end
+			if SivMenu.Extra.autolev.lvlseq == 3 then
+				LevelSpell(_R)
+				LevelSpell(_W)
+				LevelSpell(_Q)
+				LevelSpell(_E)
+			end
+			if SivMenu.Extra.autolev.lvlseq == 4 then
+				LevelSpell(_R)
+				LevelSpell(_W)
+				LevelSpell(_E)
+				LevelSpell(_Q)
+			end
+			if SivMenu.Extra.autolev.lvlseq == 5 then
+				LevelSpell(_R)
+				LevelSpell(_E)
+				LevelSpell(_Q)
+				LevelSpell(_W)
+			end
+			if SivMenu.Extra.autolev.lvlseq == 6 then
+				LevelSpell(_R)
+				LevelSpell(_E)
+				LevelSpell(_W)
+				LevelSpell(_Q)
+			end
+		end
+	end
+end
+
+function SkinHack()
+	if SivMenu.Extra.skinhax.enabled and CurSkin ~= SivMenu.Extra.skinhax.skinid then
+		local SkinIdSwap = { [1] = 7, [2] = 1, [3] = 2, [4] = 3, [5] = 4, [6] = 5, [7] = 6 }
+		CurSkin = SivMenu.Extra.skinhax.skinid
+		SkinChanger(myHero.charName, SkinIdSwap[CurSkin])
+	end
+end
+
+function SkinChanger(champ, skinId) -- Credits to shalzuth
+    p = CLoLPacket(0x97)
+    p:EncodeF(myHero.networkID)
+    p.pos = 1
+    t1 = p:Decode1()
+    t2 = p:Decode1()
+    t3 = p:Decode1()
+    t4 = p:Decode1()
+    p:Encode1(t1)
+    p:Encode1(t2)
+    p:Encode1(t3)
+    p:Encode1(bit32.band(t4,0xB))
+    p:Encode1(1)
+    p:Encode4(skinId)
+    for i = 1, #champ do
+        p:Encode1(string.byte(champ:sub(i,i)))
+    end
+    for i = #champ + 1, 64 do
+        p:Encode1(0)
+    end
+    p:Hide()
+    RecvPacket(p)
 end
