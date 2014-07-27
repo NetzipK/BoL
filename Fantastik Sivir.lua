@@ -54,8 +54,12 @@ Other features:
 
 Changelog:	
 
+* v 0.65
+ Fixed the range of Q which would change instead of only Combo
+ Minor improvements
+
 * v 0.6
- Added In-Game skin hack changer, thanks to shalzuth
+ Added In-Game skin changer, thanks to shalzuth
  Added Auto spell leveler
 
 * v 0.5
@@ -79,7 +83,7 @@ Changelog:
 ]]
 
 --[[		Auto Update		]]
-local sversion = "0.6"
+local sversion = "0.65"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BoLFantastik/BoL/master/Fantastik Sivir.lua".."?rand="..math.random(1,10000)
@@ -193,7 +197,7 @@ function Checks()
 	RREADY = (myHero:CanUseSpell(_R) == READY)
   	IREADY = (ignite ~= nil and myHero:CanUseSpell(ignite) == READY)
 	
-	Qrange = SivMenu.Combo.Qrangemin
+	Qrangec = SivMenu.Combo.Qrangemin
 	
 	SkinHack()
 	AutoLevel()
@@ -214,7 +218,7 @@ function OnDraw()
    
    if SivMenu.Drawing.DrawQ then
 	 if QREADY then
-	 DrawCircle(myHero.x, myHero.y, myHero.z, Qrange, 0xF7FE2E)
+	 DrawCircle(myHero.x, myHero.y, myHero.z, Qrangec, 0xF7FE2E)
 	 end
    end
 end
@@ -237,7 +241,7 @@ function SMenu()
 	SivMenu:addTS(ts)
 	SivMenu:addSubMenu("Combo", "Combo")
 	SivMenu.Combo:addParam("comboQ", "Use Q", SCRIPT_PARAM_ONOFF, true)
-	SivMenu.Combo:addParam("Qrangemin", "Min. range for Q ", SCRIPT_PARAM_SLICE, 1075, 600, 1075, 0)
+	SivMenu.Combo:addParam("Qrangemin", "Min. range for Q ", SCRIPT_PARAM_SLICE, 950, 600, 1075, 0)
 	SivMenu.Combo:addParam("comboW", "Use W", SCRIPT_PARAM_ONOFF, true)
 	SivMenu.Combo:addParam("comboR", "Use R", SCRIPT_PARAM_ONOFF, true)
 	SivMenu.Combo:addParam("minEnemiesR", "Min. no. of enemies for R ", SCRIPT_PARAM_SLICE, 1, 1, 5, 0)
@@ -300,8 +304,8 @@ end
 function Combo()
 if ValidTarget(target) and ManaManager() then
 		if QREADY and SivMenu.Combo.comboQ then
-			local CastPos = VP:GetLineCastPosition(target, Qdelay, Qwidth, Qrange, Qspeed, myHero, true)
-			if GetDistance(target) <= Qrange and QREADY then
+			local CastPos = VP:GetLineCastPosition(target, Qdelay, Qwidth, Qrangec, Qspeed, myHero, true)
+			if GetDistance(target) <= Qrangec and QREADY then
 				CastSpell(_Q, CastPos.x, CastPos.z)
 			end
 		end
