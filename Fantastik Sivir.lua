@@ -33,7 +33,7 @@ Spacebar | Combo key - Uses Q, W and R. Spell usage can be disabled.
 ------------------------------------------------------------------------------------
     C	 | Mixed Mode - Both last hit and poke.
 ------------------------------------------------------------------------------------
-    V    | Lane Clear - Lane clear with AA and Q.
+    V    | Lane Clear - Lane clear with AA, Q and W.
 ------------------------------------------------------------------------------------
 
 Other features:
@@ -53,6 +53,11 @@ Other features:
 
 
 Changelog:	
+
+* v 0.8
+ Added Manual HitChance settings
+ Added use W on Lane Clear
+ Fixed a little mistype on Poke
 
 * v 0.65
  Fixed the range of Q which would change instead of only Combo
@@ -83,7 +88,7 @@ Changelog:
 ]]
 
 --[[		Auto Update		]]
-local sversion = "0.65"
+local sversion = "0.8"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BoLFantastik/BoL/master/Fantastik Sivir.lua".."?rand="..math.random(1,10000)
@@ -184,6 +189,7 @@ function OnTick()
    end
    if SivMenu.farmkey then
 		FarmQ()
+		FarmW()
    end
    if SivMenu.Extra.Evade then
        EvadeeeHelper()
@@ -232,13 +238,16 @@ function SLoadLib()
 end
 
 function SMenu()
+
 	SivMenu = scriptConfig("Fantastik Sivir", "Sivir")
 	SivMenu:addParam("combokey", "Combo key(Space)", SCRIPT_PARAM_ONKEYDOWN, false, 32)
 	SivMenu:addParam("pokekey", "Poke key(Z)", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("Z"))
 	SivMenu:addParam("farmkey", "Farm key(V)", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("V"))
 	SivMenu:addParam("Version", "Version", SCRIPT_PARAM_INFO, sversion)
 	SivMenu:addParam("Author", "Author", SCRIPT_PARAM_INFO, sauthor)
+	
 	SivMenu:addTS(ts)
+	
 	SivMenu:addSubMenu("Combo", "Combo")
 	SivMenu.Combo:addParam("comboQ", "Use Q", SCRIPT_PARAM_ONOFF, true)
 	SivMenu.Combo:addParam("Qrangemin", "Min. range for Q ", SCRIPT_PARAM_SLICE, 950, 600, 1075, 0)
@@ -252,7 +261,8 @@ function SMenu()
 
 	SivMenu:addSubMenu("Farm", "Farm")
 	SivMenu.Farm:addParam("farmQ", "Use Q", SCRIPT_PARAM_ONOFF, true)
-	SivMenu.Farm:addParam("manafarm", "Min. % mana for Q", SCRIPT_PARAM_SLICE, 30, 1, 100, 0)
+	SivMenu.Farm:addParam("farmW", "Use W", SCRIPT_PARAM_ONOFF, true)
+	SivMenu.Farm:addParam("manafarm", "Min. % mana to farm", SCRIPT_PARAM_SLICE, 30, 1, 100, 0)
 	
 	SivMenu:addSubMenu("Drawing", "Drawing")
 	SivMenu.Drawing:addParam("DrawAA", "Draw AA Range", SCRIPT_PARAM_ONOFF, true)
@@ -264,6 +274,7 @@ function SMenu()
 	SivMenu:addSubMenu("Extra", "Extra")
 	SivMenu.Extra:addParam("KS", "Auto Killsteal", SCRIPT_PARAM_ONOFF, true)
 	SivMenu.Extra:addParam("Ignite", "Use Auto Ignite", SCRIPT_PARAM_ONOFF, true)
+	SivMenu.Extra:addParam("Hitchance", "Hitchance", SCRIPT_PARAM_LIST, 2, {"Very Low - 20%", "Low - 40%", "Medium - 60%", "High - 80%", "Very High - 99%"})
 	SivMenu.Extra:addSubMenu("Auto level spells", "autolev")
 	SivMenu.Extra.autolev:addParam("enabled", "Enable auto level spells", SCRIPT_PARAM_ONOFF, false)
 	SivMenu.Extra.autolev:addParam("lvlseq", "Select your auto level sequence: ", SCRIPT_PARAM_LIST, 1, {"R>Q>W>E", "R>Q>E>W", "R>W>Q>E", "R>W>E>Q", "R>E>Q>W", "R>E>W>Q"})
@@ -304,8 +315,8 @@ end
 function Combo()
 if ValidTarget(target) and ManaManager() then
 		if QREADY and SivMenu.Combo.comboQ then
-			local CastPos = VP:GetLineCastPosition(target, Qdelay, Qwidth, Qrangec, Qspeed, myHero, true)
-			if GetDistance(target) <= Qrangec and QREADY then
+			local CastPosition, HitChance, CastPos = VP:GetLineCastPosition(target, Qdelay, Qwidth, Qrangec, Qspeed, myHero, true)
+			if HitChance >= SivMenu.Extra.Hitchance and GetDistance(target) <= Qrangec and QREADY then
 				CastSpell(_Q, CastPos.x, CastPos.z)
 			end
 		end
@@ -317,18 +328,13 @@ end
 
 function Poke()
   if ValidTarget(target) then
-		if SivMenu.Poke.pokeQ and QREADY
-    	then
-        if VIP_USER then
-		 local CastPos = VP:GetLineCastPosition(target, Qdelay, Qwidth, Qrange, Qspeed, myHero, true)
-		 if GetDistance(target) <= Qrange and QREADY then
-		  CastSpell(_Q, CastPos.x, CastPos.z)
-		 end
-       else
-        CastSpell(_Q, target.x, target.z)
-       end
+		if SivMenu.Poke.pokeQ and QREADY then
+			local CastPosition, HitChance, CastPos = VP:GetLineCastPosition(target, Qdelay, Qwidth, Qrange, Qspeed, myHero, true)
+			if HitChance >= SivMenu.Extra.Hitchance and GetDistance(target) <= Qrange and QREADY then
+				CastSpell(_Q, CastPos.x, CastPos.z)
+			end
+		end
 	end
-   end
 end
 
 function GetBestQPositionFarm()
@@ -364,6 +370,21 @@ function FarmQ()
 				if QPos then
 					CastQFarm(QPos)
 				end
+			end
+		end
+	end
+	end
+end
+end
+
+function FarmW()
+	if ManaManagerFarm() then
+	EnemyMinions:update()
+	if SivMenu.Farm.farmW then
+		if WREADY and #EnemyMinions.objects > 3 then
+			for i, minion in pairs(EnemyMinions.objects) do
+			if GetDistance(minion) < 500 then
+				CastSpell(_W)
 			end
 		end
 	end
