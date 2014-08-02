@@ -88,7 +88,7 @@ Changelog:
 ]]
 
 --[[		Auto Update		]]
-local sversion = "0.8"
+local sversion = "0.81"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BoLFantastik/BoL/master/Fantastik Sivir.lua".."?rand="..math.random(1,10000)
@@ -277,7 +277,7 @@ function SMenu()
 	SivMenu.Extra:addParam("Hitchance", "Hitchance", SCRIPT_PARAM_LIST, 2, {"Very Low - 20%", "Low - 40%", "Medium - 60%", "High - 80%", "Very High - 99%"})
 	SivMenu.Extra:addSubMenu("Auto level spells", "autolev")
 	SivMenu.Extra.autolev:addParam("enabled", "Enable auto level spells", SCRIPT_PARAM_ONOFF, false)
-	SivMenu.Extra.autolev:addParam("lvlseq", "Select your auto level sequence: ", SCRIPT_PARAM_LIST, 1, {"R>Q>W>E", "R>Q>E>W", "R>W>Q>E", "R>W>E>Q", "R>E>Q>W", "R>E>W>Q"})
+	SivMenu.Extra.autolev:addParam("lvlseq", "Select your auto level sequence: ", SCRIPT_PARAM_LIST, 1, {"R>Q>W>E", "R>W>Q>E", "R>E>Q>W"})
 	SivMenu.Extra:addSubMenu("Skin Hack - VIP ONLY", "skinhax")
 	SivMenu.Extra.skinhax:addParam("enabled", "Enable Skin Hack", SCRIPT_PARAM_ONOFF, false)
 	SivMenu.Extra.skinhax:addParam("skinid", "Choose skin: ", SCRIPT_PARAM_LIST, 1, {"No Skin", "Warrior Princess", "Spectacular", "Huntress", "Bandit", "PAX", "Snowstorm"})
@@ -436,46 +436,11 @@ end
 
 function AutoLevel()
 	if SivMenu.Extra.autolev.enabled then
-		if myHero.level > oldlvl then
-			oldlvl = oldlvl + 1
-			if SivMenu.Extra.autolev.lvlseq == 1 then
-				LevelSpell(_R)
-				LevelSpell(_Q)
-				LevelSpell(_W)
-				LevelSpell(_E)
-			end
-			if SivMenu.Extra.autolev.lvlseq == 2 then
-				LevelSpell(_R)
-				LevelSpell(_Q)
-				LevelSpell(_E)
-				LevelSpell(_W)
-			end
-			if SivMenu.Extra.autolev.lvlseq == 3 then
-				LevelSpell(_R)
-				LevelSpell(_W)
-				LevelSpell(_Q)
-				LevelSpell(_E)
-			end
-			if SivMenu.Extra.autolev.lvlseq == 4 then
-				LevelSpell(_R)
-				LevelSpell(_W)
-				LevelSpell(_E)
-				LevelSpell(_Q)
-			end
-			if SivMenu.Extra.autolev.lvlseq == 5 then
-				LevelSpell(_R)
-				LevelSpell(_E)
-				LevelSpell(_Q)
-				LevelSpell(_W)
-			end
-			if SivMenu.Extra.autolev.lvlseq == 6 then
-				LevelSpell(_R)
-				LevelSpell(_E)
-				LevelSpell(_W)
-				LevelSpell(_Q)
-			end
-		end
+		if SivMenu.Extra.autolev.lvlseq == 1 then seq = {1, 2, 1, 3, 1, 4, 1, 2, 1, 2, 4, 2, 2, 3, 3, 4, 3, 3}
+		elseif SivMenu.Extra.autolev.lvlseq == 2 then seq = {2, 1, 2, 3, 2, 4, 2, 1, 2, 1, 4, 1, 1, 3, 3, 4, 3, 3}
+		elseif SivMenu.Extra.autolev.lvlseq == 3 then seq = {3, 1, 3, 2, 3, 4, 3, 1, 3, 1, 4, 1, 1, 2, 2, 4, 2, 2,}
 	end
+	autoLevelSetSequence(seq)
 end
 
 function SkinHack()
