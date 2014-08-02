@@ -316,8 +316,8 @@ function Combo()
 if ValidTarget(target) and ManaManager() then
 		if QREADY and SivMenu.Combo.comboQ then
 			local CastPosition, HitChance, CastPos = VP:GetLineCastPosition(target, Qdelay, Qwidth, Qrangec, Qspeed, myHero, true)
-			if HitChance >= SivMenu.Extra.Hitchance and GetDistance(target) <= Qrangec and QREADY then
-				CastSpell(_Q, CastPos.x, CastPos.z)
+			if HitChance >= SivMenu.Extra.Hitchance and GetDistance(CastPosition) <= Qrangec and QREADY then
+				CastSpell(_Q, CastPosition.x, CastPosition.z)
 			end
 		end
 	if RREADY and SivMenu.Combo.comboR and GetDistance(target) <= 600 then
@@ -330,8 +330,8 @@ function Poke()
   if ValidTarget(target) then
 		if SivMenu.Poke.pokeQ and QREADY then
 			local CastPosition, HitChance, CastPos = VP:GetLineCastPosition(target, Qdelay, Qwidth, Qrange, Qspeed, myHero, true)
-			if HitChance >= SivMenu.Extra.Hitchance and GetDistance(target) <= Qrange and QREADY then
-				CastSpell(_Q, CastPos.x, CastPos.z)
+			if HitChance >= SivMenu.Extra.Hitchance and GetDistance(CastPosition) <= Qrange and QREADY then
+				CastSpell(_Q, CastPosition.x, CastPosition.z)
 			end
 		end
 	end
