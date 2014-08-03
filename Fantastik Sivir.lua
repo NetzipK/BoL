@@ -54,6 +54,12 @@ Other features:
 
 Changelog:	
 
+* v 0.82 
+ Fixed a mistype error.
+
+* v 0.81
+ Remade Auto Level Spell function to a better one.
+
 * v 0.8
  Added Manual HitChance settings
  Added use W on Lane Clear
@@ -88,7 +94,7 @@ Changelog:
 ]]
 
 --[[		Auto Update		]]
-local sversion = "0.81"
+local sversion = "0.82"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BoLFantastik/BoL/master/Fantastik Sivir.lua".."?rand="..math.random(1,10000)
@@ -439,6 +445,7 @@ function AutoLevel()
 		if SivMenu.Extra.autolev.lvlseq == 1 then seq = {1, 2, 1, 3, 1, 4, 1, 2, 1, 2, 4, 2, 2, 3, 3, 4, 3, 3}
 		elseif SivMenu.Extra.autolev.lvlseq == 2 then seq = {2, 1, 2, 3, 2, 4, 2, 1, 2, 1, 4, 1, 1, 3, 3, 4, 3, 3}
 		elseif SivMenu.Extra.autolev.lvlseq == 3 then seq = {3, 1, 3, 2, 3, 4, 3, 1, 3, 1, 4, 1, 1, 2, 2, 4, 2, 2,}
+		end
 	end
 	autoLevelSetSequence(seq)
 end
