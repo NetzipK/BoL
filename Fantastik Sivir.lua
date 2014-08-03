@@ -446,8 +446,8 @@ function AutoLevel()
 		elseif SivMenu.Extra.autolev.lvlseq == 2 then seq = {2, 1, 2, 3, 2, 4, 2, 1, 2, 1, 4, 1, 1, 3, 3, 4, 3, 3}
 		elseif SivMenu.Extra.autolev.lvlseq == 3 then seq = {3, 1, 3, 2, 3, 4, 3, 1, 3, 1, 4, 1, 1, 2, 2, 4, 2, 2,}
 		end
+		autoLevelSetSequence(seq)
 	end
-	autoLevelSetSequence(seq)
 end
 
 function SkinHack()
