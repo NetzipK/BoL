@@ -49,10 +49,14 @@ Other features:
 *	Auto Q kill if killable!
 *	In-Game skin changer(Sadly VIP only)!
 *	Auto level spells!
+*	Text Drawing for targets
 *	More to come soon!
 
 
 Changelog:	
+* v 0.9
+ Added text drawing for targets
+
 
 * v 0.82 
  Fixed a mistype error.
@@ -94,7 +98,7 @@ Changelog:
 ]]
 
 --[[		Auto Update		]]
-local sversion = "0.82"
+local sversion = "0.9"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BoLFantastik/BoL/master/Fantastik Sivir.lua".."?rand="..math.random(1,10000)
@@ -164,6 +168,11 @@ local ts
 local ts = TargetSelector(TARGET_LESS_CAST_PRIORITY, Qrange, DAMAGE_PHYSICAL, true)
 local oldlvl = 0
 
+--[[	Drawings	]]
+TextList = {"Poke", "1 AA kill!", "2 AA kill!", "3 AA kill!", "Q kill!", "Q + 1 AA kill!", "Q + 2 AA kill!", "Q + 3 AA kill!", "Q + 4 AA kill!"}
+KillText = {}
+colorText = ARGB(255,255,204,0)
+
 ----------------------------------------------
 
 function OnLoad()
@@ -213,6 +222,7 @@ function Checks()
 	
 	SkinHack()
 	AutoLevel()
+	calcDmg()
 end
 
 function IgniteCheck()
@@ -233,6 +243,19 @@ function OnDraw()
 	 DrawCircle(myHero.x, myHero.y, myHero.z, Qrangec, 0xF7FE2E)
 	 end
    end
+   
+	if SivMenu.Drawing.DrawT then
+		for i = 1, heroManager.iCount do
+			local target = heroManager:GetHero(i)
+			if ValidTarget(target) and target ~= nil then
+				local barPos = WorldToScreen(D3DXVECTOR3(target.x, target.y, target.z))
+				local PosX = barPos.x - 35
+				local PosY = barPos.y - 10
+				
+				DrawText(TextList[KillText[i]], 16, PosX, PosY, colorText)
+			end
+		end
+	end
 end
 
 function SLoadLib()
@@ -273,6 +296,7 @@ function SMenu()
 	SivMenu:addSubMenu("Drawing", "Drawing")
 	SivMenu.Drawing:addParam("DrawAA", "Draw AA Range", SCRIPT_PARAM_ONOFF, true)
 	SivMenu.Drawing:addParam("DrawQ", "Draw Q Range", SCRIPT_PARAM_ONOFF, true)
+	SivMenu.Drawing:addParam("DrawT", "Draw Text", SCRIPT_PARAM_ONOFF, true)
 	
 	SivMenu:addSubMenu("Orbwalker", "Orbwalker")
 	SOWi:LoadToMenu(SivMenu.Orbwalker)
@@ -369,7 +393,7 @@ function FarmQ()
 	if ManaManagerFarm() then
 	EnemyMinions:update()
 	if SivMenu.Farm.farmQ then
-		if QREADY and #EnemyMinions.objects > 0 then
+		if QREADY and #EnemyMinions.objects > 3 then
 			for i, minion in pairs(EnemyMinions.objects) do
 		    if GetDistance(minion) < Qrange then
 				local QPos = GetBestQPositionFarm()
@@ -480,4 +504,37 @@ function SkinChanger(champ, skinId) -- Credits to shalzuth
     end
     p:Hide()
     RecvPacket(p)
+end
+
+function calcDmg()
+	for i=1, heroManager.iCount do
+		local target = heroManager:GetHero(i)
+		if ValidTarget(target) and target ~= nil then
+			qDmg = ((QREADY and getDmg("Q", target, myHero)) or 0)
+			aDmg = ((getDmg("AD", target, myHero)) or 0)
+			aDmg2 = (aDmg * 2)
+			aDmg3 = (aDmg * 3)
+			aDmg4 = (aDmg * 4)
+			
+			if target.health > (qDmg + aDmg4) then
+				KillText[i] = 1
+			elseif target.health <= aDmg then
+				KillText[i] = 2
+			elseif target.health <= aDmg2 then
+				KillText[i] = 3
+			elseif target.health <= aDmg3 then
+				KillText[i] = 4	
+			elseif target.health <= qDmg then
+				KillText[i] = 5
+			elseif target.health <= (qDmg + aDmg) then
+				KillText[i] = 6
+			elseif target.health <= (qDmg + aDmg2) then
+				KillText[i] = 7
+			elseif target.health <= (qDmg + aDmg3) then
+				KillText[i] = 8
+			elseif target.health <= (qDmg + aDmg4) then
+				KillText[i] = 9	
+			end
+		end
+	end	
 end
