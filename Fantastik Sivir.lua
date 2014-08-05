@@ -54,7 +54,7 @@ Other features:
 
 
 Changelog:	
-* v 0.92
+* v 0.93
  Added BoL Tracker, will check script runs.
 
 * v 0.9
@@ -100,7 +100,7 @@ Changelog:
 ]]
 
 --[[		Auto Update		]]
-local sversion = "0.92"
+local sversion = "0.93"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BoLFantastik/BoL/master/Fantastik Sivir.lua".."?rand="..math.random(1,10000)
@@ -179,7 +179,6 @@ colorText = ARGB(255,255,204,0)
 
 function OnLoad()
 	InitTracker()
-	UpdateWeb(true, ScriptName, id, HWID)
 	PrintChat("<font color=\"#00FF00\">Fantastik Sivir version ["..sversion.."] by Fantastik loaded.</font>")
 	if _G.Evadeee_Loaded then
 	PrintChat("<font color=\"##58D3F7\"><b>Evadeee</b> found! You can use Evadeee integration!")
