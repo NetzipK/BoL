@@ -54,6 +54,9 @@ Other features:
 
 
 Changelog:	
+* v 0.94
+ Added In-Game announcer!
+
 * v 0.93
  Added BoL Tracker, will check script runs.
 
@@ -100,7 +103,7 @@ Changelog:
 ]]
 
 --[[		Auto Update		]]
-local sversion = "0.93"
+local sversion = "0.94"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BoLFantastik/BoL/master/Fantastik Sivir.lua".."?rand="..math.random(1,10000)
@@ -169,6 +172,7 @@ local target = nil
 local ts
 local ts = TargetSelector(TARGET_LESS_CAST_PRIORITY, Qrange, DAMAGE_PHYSICAL, true)
 local oldlvl = 0
+local Announcer = ""
 
 --[[	Drawings	]]
 TextList = {"Poke", "1 AA kill!", "2 AA kill!", "3 AA kill!", "Q kill!", "Q + 1 AA kill!", "Q + 2 AA kill!", "Q + 3 AA kill!", "Q + 4 AA kill!"}
@@ -186,6 +190,7 @@ function OnLoad()
 	end
   	IgniteCheck()
 	SLoadLib()
+	Announcer()
 end
 
 
@@ -561,4 +566,17 @@ end
 
 function OnUnload()
 	UpdateWeb(false, ScriptName, id, HWID)
+end
+
+--[[	Announcer	]]
+function AnnouncerMsg(msg) print("<font color=\"#6699ff\"><b>Fantastik Sivir Announce:</b></font> <font color=\"#FFFFFF\">"..msg.."</font>") end
+function Announcer()
+	local Announce
+	local AnnouncerData = GetWebResult(UPDATE_HOST, "/BoLFantastik/BoL/master/Announcer/Fantastik Sivir")
+	if AnnouncerData then
+		Announcer = AnnouncerData or nil
+		if Announcer then
+			AnnouncerMsg(""..Announcer.."")
+		end
+	end
 end
