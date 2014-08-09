@@ -54,6 +54,10 @@ Other features:
 
 
 Changelog:	
+* v 0.95
+ Added SAC and MMA support!
+ Fixed Q not casting through minions!
+
 * v 0.94
  Added In-Game announcer!
 
@@ -103,7 +107,7 @@ Changelog:
 ]]
 
 --[[		Auto Update		]]
-local sversion = "0.94"
+local sversion = "0.95"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BoLFantastik/BoL/master/Fantastik Sivir.lua".."?rand="..math.random(1,10000)
@@ -173,6 +177,9 @@ local ts
 local ts = TargetSelector(TARGET_LESS_CAST_PRIORITY, Qrange, DAMAGE_PHYSICAL, true)
 local oldlvl = 0
 local Announcer = ""
+local isSOW = false
+local isSAC = false
+local isMMA = false
 
 --[[	Drawings	]]
 TextList = {"Poke", "1 AA kill!", "2 AA kill!", "3 AA kill!", "Q kill!", "Q + 1 AA kill!", "Q + 2 AA kill!", "Q + 3 AA kill!", "Q + 4 AA kill!"}
@@ -181,9 +188,25 @@ colorText = ARGB(255,255,204,0)
 
 ----------------------------------------------
 
+function GetCustomTarget()
+	ts:update()
+	if _G.MMA_Target and _G.MMA_Target.type == myHero.type then return _G.MMA_Target end
+	if _G.AutoCarry and _G.AutoCarry.Crosshair and _G.AutoCarry.Attack_Crosshair and _G.AutoCarry.Attack_Crosshair.target and _G.AutoCarry.Attack_Crosshair.target.type == myHero.type then return _G.AutoCarry.Attack_Crosshair.target end
+	return ts.target
+end
+
 function OnLoad()
 	InitTracker()
 	PrintChat("<font color=\"#00FF00\">Fantastik Sivir version ["..sversion.."] by Fantastik loaded.</font>")
+	if _G.MMA_Loaded ~= nil then
+		PrintChat("<font color = \"#00FF00\">Fantastik Sivir MMA Status:</font> <font color = \"#fff8e7\"> Loaded</font>")
+		isMMA = true
+	elseif _G.AutoCarry ~= nil then
+		PrintChat("<font color = \"#00FF00\">Fantastik Sivir SAC Status:</font> <font color = \"#fff8e7\"> Loaded</font>")
+		isSAC = true
+	else
+		isSOW = true
+	end
 	if _G.Evadeee_Loaded then
 	PrintChat("<font color=\"##58D3F7\"><b>Evadeee</b> found! You can use Evadeee integration!")
 	_G.Evadeee_Enabled = true
@@ -196,7 +219,7 @@ end
 
 function OnTick()
   	ts:update()
-  	target = ts.target
+  	target = GetCustomTarget()
   	Checks()
 	
   if ValidTarget(target) then
@@ -246,7 +269,7 @@ function IgniteCheck()
 end
 
 function OnDraw()
-	if SivMenu.Drawing.DrawAA then
+	if SivMenu.Drawing.DrawAA and isSOW then
 	 SOWi:DrawAARange()
 	end
    
@@ -273,7 +296,9 @@ end
 function SLoadLib()
 	EnemyMinions = minionManager(MINION_ENEMY, Qrange, myHero, MINION_SORT_MAXHEALTH_DEC)
 	VP = VPrediction(true)
-	SOWi = SOW(VP)
+	if isSOW then
+		SOWi = SOW(VP)
+	end
 	SMenu()
 	CurSkin = 0
 end
@@ -306,12 +331,15 @@ function SMenu()
 	SivMenu.Farm:addParam("manafarm", "Min. % mana to farm", SCRIPT_PARAM_SLICE, 30, 1, 100, 0)
 	
 	SivMenu:addSubMenu("Drawing", "Drawing")
+	if isSOW then
 	SivMenu.Drawing:addParam("DrawAA", "Draw AA Range", SCRIPT_PARAM_ONOFF, true)
+	end
 	SivMenu.Drawing:addParam("DrawQ", "Draw Q Range", SCRIPT_PARAM_ONOFF, true)
 	SivMenu.Drawing:addParam("DrawT", "Draw Text", SCRIPT_PARAM_ONOFF, true)
-	
-	SivMenu:addSubMenu("Orbwalker", "Orbwalker")
-	SOWi:LoadToMenu(SivMenu.Orbwalker)
+	if isSOW then
+		SivMenu:addSubMenu("Orbwalker", "Orbwalker")
+		SOWi:LoadToMenu(SivMenu.Orbwalker)
+	end
 	
 	SivMenu:addSubMenu("Extra", "Extra")
 	SivMenu.Extra:addParam("KS", "Auto Killsteal", SCRIPT_PARAM_ONOFF, true)
@@ -333,7 +361,7 @@ end
 
 function KS(Target)
 	if QREADY and getDmg("Q", Target, myHero) > Target.health then
-		local CastPos = VP:GetLineCastPosition(Target, Qdelay, Qwidth, Qrange, Qspeed, myHero, true)
+		local CastPos = VP:GetLineCastPosition(Target, Qdelay, Qwidth, Qrange, Qspeed, myHero, false)
 		if GetDistance(Target) <= Qrange and QREADY then
 		CastSpell(_Q, CastPos.x, CastPos.z)
 		end
@@ -357,7 +385,7 @@ end
 function Combo()
 if ValidTarget(target) and ManaManager() then
 		if QREADY and SivMenu.Combo.comboQ then
-			local CastPosition, HitChance, CastPos = VP:GetLineCastPosition(target, Qdelay, Qwidth, Qrangec, Qspeed, myHero, true)
+			local CastPosition, HitChance, CastPos = VP:GetLineCastPosition(target, Qdelay, Qwidth, Qrangec, Qspeed, myHero, false)
 			if HitChance >= SivMenu.Extra.Hitchance and GetDistance(CastPosition) <= Qrangec and QREADY then
 				CastSpell(_Q, CastPosition.x, CastPosition.z)
 			end
@@ -371,7 +399,7 @@ end
 function Poke()
   if ValidTarget(target) then
 		if SivMenu.Poke.pokeQ and QREADY then
-			local CastPosition, HitChance, CastPos = VP:GetLineCastPosition(target, Qdelay, Qwidth, Qrange, Qspeed, myHero, true)
+			local CastPosition, HitChance, CastPos = VP:GetLineCastPosition(target, Qdelay, Qwidth, Qrange, Qspeed, myHero, false)
 			if HitChance >= SivMenu.Extra.Hitchance and GetDistance(CastPosition) <= Qrange and QREADY then
 				CastSpell(_Q, CastPosition.x, CastPosition.z)
 			end
