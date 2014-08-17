@@ -27,7 +27,7 @@ Features:
 ------------------------------------------------------------------------------------
 Spacebar | Combo key - Uses Q, W and R. Spell usage can be disabled.
 ------------------------------------------------------------------------------------
-    Z    | Poke key - Uses Q to poke the enemy. Can be disabled.
+    C    | Poke key - Uses Q to poke the enemy. Can be disabled.
 ------------------------------------------------------------------------------------
     X    | Last Hit - Last hits the minions with AA.
 ------------------------------------------------------------------------------------
@@ -54,6 +54,10 @@ Other features:
 
 
 Changelog:	
+* v 0.96
+ Added Mana slider for Poke
+ Changed Poke key to C
+
 * v 0.95
  Added SAC and MMA support!
  Fixed Q not casting through minions!
@@ -107,7 +111,7 @@ Changelog:
 ]]
 
 --[[		Auto Update		]]
-local sversion = "0.95"
+local sversion = "0.96"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BoLFantastik/BoL/master/Fantastik Sivir.lua".."?rand="..math.random(1,10000)
@@ -175,7 +179,6 @@ local iDmg = 0
 local target = nil
 local ts
 local ts = TargetSelector(TARGET_LESS_CAST_PRIORITY, Qrange, DAMAGE_PHYSICAL, true)
-local oldlvl = 0
 local Announcer = ""
 local isSOW = false
 local isSAC = false
@@ -307,7 +310,7 @@ function SMenu()
 
 	SivMenu = scriptConfig("Fantastik Sivir", "Sivir")
 	SivMenu:addParam("combokey", "Combo key(Space)", SCRIPT_PARAM_ONKEYDOWN, false, 32)
-	SivMenu:addParam("pokekey", "Poke key(Z)", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("Z"))
+	SivMenu:addParam("pokekey", "Poke key(C)", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("C"))
 	SivMenu:addParam("farmkey", "Farm key(V)", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("V"))
 	SivMenu:addParam("Version", "Version", SCRIPT_PARAM_INFO, sversion)
 	SivMenu:addParam("Author", "Author", SCRIPT_PARAM_INFO, sauthor)
@@ -324,6 +327,7 @@ function SMenu()
 	
 	SivMenu:addSubMenu("Poke", "Poke")
 	SivMenu.Poke:addParam("pokeQ", "Use Q", SCRIPT_PARAM_ONOFF, true)
+	SivMenu.Poke:addParam("manapls", "Min. % mana for spells ", SCRIPT_PARAM_SLICE, 30, 1, 100, 0)
 
 	SivMenu:addSubMenu("Farm", "Farm")
 	SivMenu.Farm:addParam("farmQ", "Use Q", SCRIPT_PARAM_ONOFF, true)
@@ -397,7 +401,7 @@ end
 end
 
 function Poke()
-  if ValidTarget(target) then
+  if ValidTarget(target) and ManaManagerPoke() then
 		if SivMenu.Poke.pokeQ and QREADY then
 			local CastPosition, HitChance, CastPos = VP:GetLineCastPosition(target, Qdelay, Qwidth, Qrange, Qspeed, myHero, false)
 			if HitChance >= SivMenu.Extra.Hitchance and GetDistance(CastPosition) <= Qrange and QREADY then
@@ -479,6 +483,14 @@ end
 
 function ManaManager()
 	if myHero.mana >= myHero.maxMana * (SivMenu.Combo.manapls / 100) then
+	return true
+	else
+	return false
+	end	 
+end
+
+function ManaManagerPoke()
+	if myHero.mana >= myHero.maxMana * (SivMenu.Poke.manapls / 100) then
 	return true
 	else
 	return false
