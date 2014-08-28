@@ -54,6 +54,10 @@ Other features:
 
 
 Changelog:	
+* v 0.97
+ Fixed Auto Ignite for 4.15
+ Now can name the script file however you like
+
 * v 0.96
  Added Mana slider for Poke
  Changed Poke key to C
@@ -111,11 +115,11 @@ Changelog:
 ]]
 
 --[[		Auto Update		]]
-local sversion = "0.96"
+local sversion = "0.97"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BoLFantastik/BoL/master/Fantastik Sivir.lua".."?rand="..math.random(1,10000)
-local UPDATE_FILE_PATH = SCRIPT_PATH.."Fantastik Sivir.lua"
+local UPDATE_FILE_PATH = SCRIPT_PATH..GetCurrentEnv().FILE_NAME
 local UPDATE_URL = "https://"..UPDATE_HOST..UPDATE_PATH
 
 function AutoupdaterMsg(msg) print("<font color=\"#6699ff\"><b>Fantastik Sivir:</b></font> <font color=\"#FFFFFF\">"..msg..".</font>") end
@@ -264,9 +268,9 @@ function Checks()
 end
 
 function IgniteCheck()
-	if myHero:GetSpellData(SUMMONER_1).name:find("SummonerDot") then
+	if myHero:GetSpellData(SUMMONER_1).name:find("summonerdot") then
 			ignite = SUMMONER_1
-	elseif myHero:GetSpellData(SUMMONER_2).name:find("SummonerDot") then
+	elseif myHero:GetSpellData(SUMMONER_2).name:find("summonerdot") then
 			ignite = SUMMONER_2
 	end
 end
@@ -371,7 +375,7 @@ function KS(Target)
 		end
 	end
 end
-  
+
 function AutoIgnite(enemy)
   	iDmg = ((IREADY and getDmg("IGNITE", enemy, myHero)) or 0) 
 	if enemy.health <= iDmg and GetDistance(enemy) <= 600 and ignite ~= nil
