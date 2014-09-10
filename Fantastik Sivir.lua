@@ -54,6 +54,10 @@ Other features:
 
 
 Changelog:	
+* v 1
+ Added Packet casting for VIP users
+ Improved hitchance, it shall be working better
+
 * v 0.97
  Fixed Auto Ignite for 4.15
  Now can name the script file however you like
@@ -115,7 +119,7 @@ Changelog:
 ]]
 
 --[[		Auto Update		]]
-local sversion = "0.97"
+local sversion = "1"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BoLFantastik/BoL/master/Fantastik Sivir.lua".."?rand="..math.random(1,10000)
@@ -145,6 +149,7 @@ local REQUIRED_LIBS =
 	{
 		["VPrediction"] = "https://raw.github.com/Hellsing/BoL/master/common/VPrediction.lua",
 		["SOW"] = "https://raw.github.com/Hellsing/BoL/master/common/SOW.lua",
+--		if VIP_USER then ["Prodiction"] = "https://bitbucket.org/Klokje/public-klokjes-bol-scripts/raw/7f8427d943e993667acd4a51a39cf9aa2b71f222/Test/Prodiction/Prodiction.lua" end,
 	}		
 local DOWNLOADING_LIBS = false
 local DOWNLOAD_COUNT = 0
@@ -259,7 +264,9 @@ function Checks()
 	Qrangec = SivMenu.Combo.Qrangemin
 	
 	SkinHack()
-	AutoLevel()
+	if SivMenu.Extra.autolev.enabled then
+		AutoLevel()
+	end
 	calcDmg()
 	
 	if GetGame().isOver then
@@ -352,7 +359,7 @@ function SMenu()
 	SivMenu:addSubMenu("Extra", "Extra")
 	SivMenu.Extra:addParam("KS", "Auto Killsteal", SCRIPT_PARAM_ONOFF, true)
 	SivMenu.Extra:addParam("Ignite", "Use Auto Ignite", SCRIPT_PARAM_ONOFF, true)
-	SivMenu.Extra:addParam("Hitchance", "Hitchance", SCRIPT_PARAM_LIST, 2, {"Very Low - 20%", "Low - 40%", "Medium - 60%", "High - 80%", "Very High - 99%"})
+	SivMenu.Extra:addParam("Hitchance", "Hitchance", SCRIPT_PARAM_LIST, 2, {"LOW", "MEDIUM"})
 	SivMenu.Extra:addSubMenu("Auto level spells", "autolev")
 	SivMenu.Extra.autolev:addParam("enabled", "Enable auto level spells", SCRIPT_PARAM_ONOFF, false)
 	SivMenu.Extra.autolev:addParam("lvlseq", "Select your auto level sequence: ", SCRIPT_PARAM_LIST, 1, {"R>Q>W>E", "R>W>Q>E", "R>E>Q>W"})
@@ -361,6 +368,9 @@ function SMenu()
 	SivMenu.Extra.skinhax:addParam("skinid", "Choose skin: ", SCRIPT_PARAM_LIST, 1, {"No Skin", "Warrior Princess", "Spectacular", "Huntress", "Bandit", "PAX", "Snowstorm"})
 	if _G.Evadeee_Loaded then
 		SivMenu.Extra:addParam("Evade", "Use Evadeee Integration", SCRIPT_PARAM_ONOFF, true)
+	end
+	if VIP_USER then
+		SivMenu.Extra:addParam("packetcast", "Use Packet Cast", SCRIPT_PARAM_ONOFF, false)
 	end
 	SivMenu:permaShow("combokey")
 	SivMenu:permaShow("pokekey")
@@ -371,7 +381,11 @@ function KS(Target)
 	if QREADY and getDmg("Q", Target, myHero) > Target.health then
 		local CastPos = VP:GetLineCastPosition(Target, Qdelay, Qwidth, Qrange, Qspeed, myHero, false)
 		if GetDistance(Target) <= Qrange and QREADY then
-		CastSpell(_Q, CastPos.x, CastPos.z)
+			if not VIP_USER or not SivMenu.Extra.packetcast then
+				CastSpell(_Q, CastPos.x, CastPos.z)
+			elseif VIP_USER and SivMenu.Extra.packetcast then
+				PacketCast(_Q, CastPos)
+			end
 		end
 	end
 end
@@ -391,17 +405,21 @@ function EvadeeeHelper()
 end
 
 function Combo()
-if ValidTarget(target) and ManaManager() then
+	if ValidTarget(target) and ManaManager() then
 		if QREADY and SivMenu.Combo.comboQ then
 			local CastPosition, HitChance, CastPos = VP:GetLineCastPosition(target, Qdelay, Qwidth, Qrangec, Qspeed, myHero, false)
 			if HitChance >= SivMenu.Extra.Hitchance and GetDistance(CastPosition) <= Qrangec and QREADY then
-				CastSpell(_Q, CastPosition.x, CastPosition.z)
+				if not VIP_USER or not SivMenu.Extra.packetcast then
+					CastSpell(_Q, CastPosition.x, CastPosition.z)
+				elseif VIP_USER and SivMenu.Extra.packetcast then
+					PacketCast(_Q, CastPosition)
+				end
 			end
 		end
-	if RREADY and SivMenu.Combo.comboR and GetDistance(target) <= 600 then
-		CastR()
+		if RREADY and SivMenu.Combo.comboR and GetDistance(target) <= 600 then
+			CastR()
+		end
 	end
-end
 end
 
 function Poke()
@@ -409,7 +427,11 @@ function Poke()
 		if SivMenu.Poke.pokeQ and QREADY then
 			local CastPosition, HitChance, CastPos = VP:GetLineCastPosition(target, Qdelay, Qwidth, Qrange, Qspeed, myHero, false)
 			if HitChance >= SivMenu.Extra.Hitchance and GetDistance(CastPosition) <= Qrange and QREADY then
-				CastSpell(_Q, CastPosition.x, CastPosition.z)
+				if not VIP_USER or not SivMenu.Extra.packetcast then
+					CastSpell(_Q, CastPosition.x, CastPosition.z)
+				elseif VIP_USER and SivMenu.Extra.packetcast then
+					PacketCast(_Q, CastPosition)
+				end
 			end
 		end
 	end
@@ -434,7 +456,11 @@ function GetBestQPositionFarm()
 end
 
 function CastQFarm(to)
-  CastSpell(_Q, to.x, to.z)
+	if not VIP_USER or not SivMenu.Extra.packetcast then
+		CastSpell(_Q, to.x, to.z)
+	elseif VIP_USER and SivMenu.Extra.packetcast then
+		PacketCast(_Q, to)
+	end
 end
 
 function FarmQ()
@@ -473,8 +499,13 @@ end
 function OnProcessSpell(unit, spell)
 if unit == myHero and spell.name:lower():find("attack") then
     if SivMenu.combokey and WREADY and SivMenu.Combo.comboW and GetDistance(target) <= 600 then
-		DelayAction(function() CastSpell(_W) end, spell.windUpTime + GetLatency() / 2000)
+		if not VIP_USER or not SivMenu.Extra.packetcast then
+			DelayAction(function() CastSpell(_W) end, spell.windUpTime + GetLatency() / 2000)
+		elseif VIP_USER and SivMenu.Extra.packetcast then
+			DelayAction(function() PacketCast(_W, myHero) end, spell.windUpTime + GetLatency() / 2000)
+		end
 	end
+end
 end
 
 function ManaManagerFarm()
@@ -503,9 +534,12 @@ end
 
 function CastR()
 	if SivMenu.Combo.minEnemiesR <= CountEnemyHeroInRange(600) then
-		CastSpell(_R)
+		if not VIP_USER or not SivMenu.Extra.packetcast then
+			CastSpell(_R)
+		elseif VIP_USER and SivMenu.Extra.packetcast then
+			PacketCast(_R, myHero)
+		end
 	end
-end
 end
 
 function CountMinionsHit(QPos)
@@ -521,13 +555,11 @@ function CountMinionsHit(QPos)
 end
 
 function AutoLevel()
-	if SivMenu.Extra.autolev.enabled then
 		if SivMenu.Extra.autolev.lvlseq == 1 then seq = {1, 2, 1, 3, 1, 4, 1, 2, 1, 2, 4, 2, 2, 3, 3, 4, 3, 3}
 		elseif SivMenu.Extra.autolev.lvlseq == 2 then seq = {2, 1, 2, 3, 2, 4, 2, 1, 2, 1, 4, 1, 1, 3, 3, 4, 3, 3}
 		elseif SivMenu.Extra.autolev.lvlseq == 3 then seq = {3, 1, 3, 2, 3, 4, 3, 1, 3, 1, 4, 1, 1, 2, 2, 4, 2, 2,}
 		end
 		autoLevelSetSequence(seq)
-	end
 end
 
 function SkinHack()
@@ -623,4 +655,8 @@ function Announcer()
 			AnnouncerMsg(""..Announcer.."")
 		end
 	end
+end
+
+function PacketCast(spell, position)
+	Packet("S_CAST", {spellId = spell, fromX =  position.x, fromY =  position.z, toX =  position.x, toY =  position.z}):send()
 end
