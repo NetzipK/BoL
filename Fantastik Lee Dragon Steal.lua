@@ -125,8 +125,7 @@ function JungleSteal()
 						if qDmg + sDmg >= Drake.health then
 							CastSpell(wardSlot, Spots.WardInDrake.x, Spots.WardInDrake.z)
 							CastSpell(_Q, Drake.x, Drake.z)
-							PrintChat("Casted Q")
-							DelayAction(function() ComboSteal() PrintChat("Casted 2 Q") end, 1)
+							DelayAction(function() ComboSteal() end, 1)
 						end
 					end
 				end
