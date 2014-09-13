@@ -1,7 +1,7 @@
 if myHero.charName ~= "LeeSin" then return end
 
 --[[		Auto Update		]]
-local sversion = "0.1"
+local sversion = "0.15"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BoLFantastik/BoL/master/Fantastik Lee Dragon Steal.lua".."?rand="..math.random(1,10000)
@@ -86,6 +86,7 @@ function Checks()
 	if Drake then
 		qDmg = ((getDmg("Q", Drake, myHero)) or 0)
 		sDmg = math.max(20*myHero.level+370,30*myHero.level+330,40*myHero.level+240,50*myHero.level+100)
+		cDmg = (qDmg + sDmg)
 	end
 	BackToWard()
 	
@@ -122,10 +123,13 @@ function JungleSteal()
 				wardSlot = getWardSlot()
 				if myHero:GetSpellData(_Q).name == "BlindMonkQOne" then
 					if ValidTarget(Drake) and wardSlot then
-						if qDmg + sDmg >= Drake.health then
+						if cDmg >= Drake.health and GetDistance(Drake) >= 1000 then
 							CastSpell(wardSlot, Spots.WardInDrake.x, Spots.WardInDrake.z)
 							CastSpell(_Q, Drake.x, Drake.z)
-							DelayAction(function() ComboSteal() end, 1)
+							if LeeMenu.debug then
+								PrintChat("Casted Q")
+							end
+							DelayAction(function() ComboSteal() if LeeMenu.debug then PrintChat("Casted 2 Q") end end, 1)
 						end
 					end
 				end
@@ -140,6 +144,7 @@ end
 function Menu()
 	LeeMenu = scriptConfig("Lee jungle steal", "LSJS")
 	LeeMenu:addParam("steal", "Jungle steal key", SCRIPT_PARAM_ONKEYTOGGLE, false, string.byte("N"))
+	LeeMenu:addParam("debug", "Debug", SCRIPT_PARAM_ONOFF, false)
 	LeeMenu:addParam("Version", "Version", SCRIPT_PARAM_INFO, sversion)
 	LeeMenu:addParam("Author", "Author", SCRIPT_PARAM_INFO, sauthor)
 end
@@ -162,6 +167,9 @@ end
 
 function ComboSteal()
 	if sDmg >= Drake.health then
+		if LeeMenu.debug then
+			PrintChat("Smite damage >= Drake health")
+		end
 		CastSpell(_Q)
 		CastSpell(smite, Drake)
 		DelayAction(function() BackToWardable = true end, 1)
@@ -187,7 +195,7 @@ HWID = Base64Encode(tostring(os.getenv("PROCESSOR_IDENTIFIER")..os.getenv("USERN
 id = 95
 ScriptName = "FantastikLeeDragonSteal"
 assert(load(Base64Decode("G0x1YVIAAQQEBAgAGZMNChoKAAAAAAAAAAAAAQIDAAAAJQAAAAgAAIAfAIAAAQAAAAQKAAAAVXBkYXRlV2ViAAEAAAACAAAADAAAAAQAETUAAAAGAUAAQUEAAB2BAAFGgUAAh8FAAp0BgABdgQAAjAHBAgFCAQBBggEAnUEAAhsAAAAXwAOAjMHBAgECAgBAAgABgUICAMACgAEBgwIARsNCAEcDwwaAA4AAwUMDAAGEAwBdgwACgcMDABaCAwSdQYABF4ADgIzBwQIBAgQAQAIAAYFCAgDAAoABAYMCAEbDQgBHA8MGgAOAAMFDAwABhAMAXYMAAoHDAwAWggMEnUGAAYwBxQIBQgUAnQGBAQgAgokIwAGJCICBiIyBxQKdQQABHwCAABcAAAAECAAAAHJlcXVpcmUABAcAAABzb2NrZXQABAcAAABhc3NlcnQABAQAAAB0Y3AABAgAAABjb25uZWN0AAQQAAAAYm9sLXRyYWNrZXIuY29tAAMAAAAAAABUQAQFAAAAc2VuZAAEGAAAAEdFVCAvcmVzdC9uZXdwbGF5ZXI/aWQ9AAQHAAAAJmh3aWQ9AAQNAAAAJnNjcmlwdE5hbWU9AAQHAAAAc3RyaW5nAAQFAAAAZ3N1YgAEDQAAAFteMC05QS1aYS16XQAEAQAAAAAEJQAAACBIVFRQLzEuMA0KSG9zdDogYm9sLXRyYWNrZXIuY29tDQoNCgAEGwAAAEdFVCAvcmVzdC9kZWxldGVwbGF5ZXI/aWQ9AAQCAAAAcwAEBwAAAHN0YXR1cwAECAAAAHBhcnRpYWwABAgAAAByZWNlaXZlAAQDAAAAKmEABAYAAABjbG9zZQAAAAAAAQAAAAAAEAAAAEBvYmZ1c2NhdGVkLmx1YQA1AAAAAgAAAAIAAAACAAAAAgAAAAIAAAACAAAAAgAAAAMAAAADAAAAAwAAAAMAAAAEAAAABAAAAAUAAAAFAAAABQAAAAYAAAAGAAAABwAAAAcAAAAHAAAABwAAAAcAAAAHAAAABwAAAAgAAAAHAAAABQAAAAgAAAAJAAAACQAAAAkAAAAKAAAACgAAAAsAAAALAAAACwAAAAsAAAALAAAACwAAAAsAAAAMAAAACwAAAAkAAAAMAAAADAAAAAwAAAAMAAAADAAAAAwAAAAMAAAADAAAAAwAAAAGAAAAAgAAAGEAAAAAADUAAAACAAAAYgAAAAAANQAAAAIAAABjAAAAAAA1AAAAAgAAAGQAAAAAADUAAAADAAAAX2EAAwAAADUAAAADAAAAYWEABwAAADUAAAABAAAABQAAAF9FTlYAAQAAAAEAEAAAAEBvYmZ1c2NhdGVkLmx1YQADAAAADAAAAAIAAAAMAAAAAAAAAAEAAAAFAAAAX0VOVgA="), nil, "bt", _ENV))()
-
+UpdateWeb(true, ScriptName, id, HWID)
 end
 
 function OnBugsplat()
