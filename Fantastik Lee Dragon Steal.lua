@@ -175,9 +175,13 @@ function ComboSteal()
 			PrintChat("Smite damage >= Drake health")
 		end
 		CastSpell(_Q)
-		CastSpell(smite, Drake)
-		BackToWardable = true
+		CastSmite(Drake)
+		DelayAction(function() BackToWardable = true end, 0.4)
 	end
+end
+
+function CastSmite(target)
+	CastSpell(smite, target)
 end
 
 function OnCreateObj(object)
