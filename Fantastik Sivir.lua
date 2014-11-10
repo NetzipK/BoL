@@ -54,6 +54,11 @@ Other features:
 
 
 Changelog:	
+* v 1.1
+ Removed BoL Tracker
+ Added HitChance for Q Poke
+ Added choose Q target
+
 * v 1
  Added Packet casting for VIP users
  Improved hitchance, it shall be working better
@@ -119,7 +124,7 @@ Changelog:
 ]]
 
 --[[		Auto Update		]]
-local sversion = "1"
+local sversion = "1.1"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BoLFantastik/BoL/master/Fantastik Sivir.lua".."?rand="..math.random(1,10000)
@@ -208,7 +213,6 @@ function GetCustomTarget()
 end
 
 function OnLoad()
-	InitTracker()
 	PrintChat("<font color=\"#00FF00\">Fantastik Sivir version ["..sversion.."] by Fantastik loaded.</font>")
 	if _G.MMA_Loaded ~= nil then
 		PrintChat("<font color = \"#00FF00\">Fantastik Sivir MMA Status:</font> <font color = \"#fff8e7\"> Loaded</font>")
@@ -268,10 +272,6 @@ function Checks()
 		AutoLevel()
 	end
 	calcDmg()
-	
-	if GetGame().isOver then
-		UpdateWeb(false, ScriptName, id, HWID)
-	end
 end
 
 function IgniteCheck()
@@ -330,6 +330,10 @@ function SMenu()
 	
 	SivMenu:addSubMenu("Combo", "Combo")
 	SivMenu.Combo:addParam("comboQ", "Use Q", SCRIPT_PARAM_ONOFF, true)
+	SivMenu.Combo:addSubMenu("Use Q on:", "targets")
+	for _, enemy in ipairs(GetEnemyHeroes()) do
+        SivMenu.Combo.targets:addParam(enemy.charName, enemy.charName, SCRIPT_PARAM_ONOFF, true)
+    end
 	SivMenu.Combo:addParam("Qrangemin", "Min. range for Q ", SCRIPT_PARAM_SLICE, 950, 600, 1075, 0)
 	SivMenu.Combo:addParam("comboW", "Use W", SCRIPT_PARAM_ONOFF, true)
 	SivMenu.Combo:addParam("comboR", "Use R", SCRIPT_PARAM_ONOFF, true)
@@ -359,7 +363,8 @@ function SMenu()
 	SivMenu:addSubMenu("Extra", "Extra")
 	SivMenu.Extra:addParam("KS", "Auto Killsteal", SCRIPT_PARAM_ONOFF, true)
 	SivMenu.Extra:addParam("Ignite", "Use Auto Ignite", SCRIPT_PARAM_ONOFF, true)
-	SivMenu.Extra:addParam("Hitchance", "Hitchance", SCRIPT_PARAM_LIST, 2, {"LOW", "MEDIUM"})
+	SivMenu.Extra:addParam("Hitchance", "Hitchance Combo", SCRIPT_PARAM_LIST, 2, {"LOW", "MEDIUM"})
+	SivMenu.Extra:addParam("HitchanceP", "Hitchance Poke", SCRIPT_PARAM_LIST, 2, {"LOW", "MEDIUM"})
 	SivMenu.Extra:addSubMenu("Auto level spells", "autolev")
 	SivMenu.Extra.autolev:addParam("enabled", "Enable auto level spells", SCRIPT_PARAM_ONOFF, false)
 	SivMenu.Extra.autolev:addParam("lvlseq", "Select your auto level sequence: ", SCRIPT_PARAM_LIST, 1, {"R>Q>W>E", "R>W>Q>E", "R>E>Q>W"})
@@ -406,7 +411,7 @@ end
 
 function Combo()
 	if ValidTarget(target) and ManaManager() then
-		if QREADY and SivMenu.Combo.comboQ then
+		if QREADY and SivMenu.Combo.comboQ and SivMenu.Combo.targets[target.charName] then
 			local CastPosition, HitChance, CastPos = VP:GetLineCastPosition(target, Qdelay, Qwidth, Qrangec, Qspeed, myHero, false)
 			if HitChance >= SivMenu.Extra.Hitchance and GetDistance(CastPosition) <= Qrangec and QREADY then
 				if not VIP_USER or not SivMenu.Extra.packetcast then
@@ -424,9 +429,9 @@ end
 
 function Poke()
   if ValidTarget(target) and ManaManagerPoke() then
-		if SivMenu.Poke.pokeQ and QREADY then
+		if SivMenu.Poke.pokeQ and QREADY and SivMenu.Combo.targets[target.charName] then
 			local CastPosition, HitChance, CastPos = VP:GetLineCastPosition(target, Qdelay, Qwidth, Qrange, Qspeed, myHero, false)
-			if HitChance >= SivMenu.Extra.Hitchance and GetDistance(CastPosition) <= Qrange and QREADY then
+			if HitChance >= SivMenu.Extra.HitchanceP and GetDistance(CastPosition) <= Qrange and QREADY then
 				if not VIP_USER or not SivMenu.Extra.packetcast then
 					CastSpell(_Q, CastPosition.x, CastPosition.z)
 				elseif VIP_USER and SivMenu.Extra.packetcast then
@@ -625,23 +630,6 @@ function calcDmg()
 			end
 		end
 	end	
-end
-
-function InitTracker()
-	HWID = Base64Encode(tostring(os.getenv("PROCESSOR_IDENTIFIER")..os.getenv("USERNAME")..os.getenv("COMPUTERNAME")..os.getenv("PROCESSOR_LEVEL")..os.getenv("PROCESSOR_REVISION")))
-	id = 95
-	ScriptName = "FantastikSivir"
-
-	assert(load(Base64Decode("G0x1YVIAAQQEBAgAGZMNChoKAAAAAAAAAAAAAQIDAAAAJQAAAAgAAIAfAIAAAQAAAAQKAAAAVXBkYXRlV2ViAAEAAAACAAAADAAAAAQAETUAAAAGAUAAQUEAAB2BAAFGgUAAh8FAAp0BgABdgQAAjAHBAgFCAQBBggEAnUEAAhsAAAAXwAOAjMHBAgECAgBAAgABgUICAMACgAEBgwIARsNCAEcDwwaAA4AAwUMDAAGEAwBdgwACgcMDABaCAwSdQYABF4ADgIzBwQIBAgQAQAIAAYFCAgDAAoABAYMCAEbDQgBHA8MGgAOAAMFDAwABhAMAXYMAAoHDAwAWggMEnUGAAYwBxQIBQgUAnQGBAQgAgokIwAGJCICBiIyBxQKdQQABHwCAABcAAAAECAAAAHJlcXVpcmUABAcAAABzb2NrZXQABAcAAABhc3NlcnQABAQAAAB0Y3AABAgAAABjb25uZWN0AAQQAAAAYm9sLXRyYWNrZXIuY29tAAMAAAAAAABUQAQFAAAAc2VuZAAEGAAAAEdFVCAvcmVzdC9uZXdwbGF5ZXI/aWQ9AAQHAAAAJmh3aWQ9AAQNAAAAJnNjcmlwdE5hbWU9AAQHAAAAc3RyaW5nAAQFAAAAZ3N1YgAEDQAAAFteMC05QS1aYS16XQAEAQAAAAAEJQAAACBIVFRQLzEuMA0KSG9zdDogYm9sLXRyYWNrZXIuY29tDQoNCgAEGwAAAEdFVCAvcmVzdC9kZWxldGVwbGF5ZXI/aWQ9AAQCAAAAcwAEBwAAAHN0YXR1cwAECAAAAHBhcnRpYWwABAgAAAByZWNlaXZlAAQDAAAAKmEABAYAAABjbG9zZQAAAAAAAQAAAAAAEAAAAEBvYmZ1c2NhdGVkLmx1YQA1AAAAAgAAAAIAAAACAAAAAgAAAAIAAAACAAAAAgAAAAMAAAADAAAAAwAAAAMAAAAEAAAABAAAAAUAAAAFAAAABQAAAAYAAAAGAAAABwAAAAcAAAAHAAAABwAAAAcAAAAHAAAABwAAAAgAAAAHAAAABQAAAAgAAAAJAAAACQAAAAkAAAAKAAAACgAAAAsAAAALAAAACwAAAAsAAAALAAAACwAAAAsAAAAMAAAACwAAAAkAAAAMAAAADAAAAAwAAAAMAAAADAAAAAwAAAAMAAAADAAAAAwAAAAGAAAAAgAAAGEAAAAAADUAAAACAAAAYgAAAAAANQAAAAIAAABjAAAAAAA1AAAAAgAAAGQAAAAAADUAAAADAAAAX2EAAwAAADUAAAADAAAAYWEABwAAADUAAAABAAAABQAAAF9FTlYAAQAAAAEAEAAAAEBvYmZ1c2NhdGVkLmx1YQADAAAADAAAAAIAAAAMAAAAAAAAAAEAAAAFAAAAX0VOVgA="), nil, "bt", _ENV))()
-	UpdateWeb(true, ScriptName, id, HWID)
-end
-
-function OnBugsplat()
-	UpdateWeb(false, ScriptName, id, HWID)
-end
-
-function OnUnload()
-	UpdateWeb(false, ScriptName, id, HWID)
 end
 
 --[[	Announcer	]]
