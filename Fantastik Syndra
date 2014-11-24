@@ -1,5 +1,28 @@
 if myHero.charName ~= "Syndra" then return end
+--[[
 
+ /$$$$$$$$                   /$$                           /$$     /$$ /$$              /$$$$$$                            /$$                   
+| $$_____/                  | $$                          | $$    |__/| $$             /$$__  $$                          | $$                   
+| $$    /$$$$$$  /$$$$$$$  /$$$$$$    /$$$$$$   /$$$$$$$ /$$$$$$   /$$| $$   /$$      | $$  \__/ /$$   /$$ /$$$$$$$   /$$$$$$$  /$$$$$$  /$$$$$$ 
+| $$$$$|____  $$| $$__  $$|_  $$_/   |____  $$ /$$_____/|_  $$_/  | $$| $$  /$$/      |  $$$$$$ | $$  | $$| $$__  $$ /$$__  $$ /$$__  $$|____  $$
+| $$__/ /$$$$$$$| $$  \ $$  | $$      /$$$$$$$|  $$$$$$   | $$    | $$| $$$$$$/        \____  $$| $$  | $$| $$  \ $$| $$  | $$| $$  \__/ /$$$$$$$
+| $$   /$$__  $$| $$  | $$  | $$ /$$ /$$__  $$ \____  $$  | $$ /$$| $$| $$_  $$        /$$  \ $$| $$  | $$| $$  | $$| $$  | $$| $$      /$$__  $$
+| $$  |  $$$$$$$| $$  | $$  |  $$$$/|  $$$$$$$ /$$$$$$$/  |  $$$$/| $$| $$ \  $$      |  $$$$$$/|  $$$$$$$| $$  | $$|  $$$$$$$| $$     |  $$$$$$$
+|__/   \_______/|__/  |__/   \___/   \_______/|_______/    \___/  |__/|__/  \__/       \______/  \____  $$|__/  |__/ \_______/|__/      \_______/
+                                                                                                 /$$  | $$                                       
+                                                                                                |  $$$$$$/                                       
+                                                                                                 \______/                                        
+
+Thanks to: Sania and anyone who helped him - For making this script and letting me continue it after his retirement.
+		   Fantastik AKA me - For not letting this awesome script to die.
+		   
+If you've got more ideas, or want to report bugs and glitches, post on the topic.
+
+Changelog:
+* v 0.1
+ Fixed Farm function for the new map.
+
+]]--
 local version = 0.1
 local AUTOUPDATE = true
 local SCRIPT_NAME = "Fantastik Syndra"
@@ -66,6 +89,9 @@ function OnLoad()
 	DLib:RegisterDamageSource(_E, _MAGIC, 25, 45, _MAGIC, _AP, 0.4, function() return (player:CanUseSpell(_E) == READY) end)
 	DLib:RegisterDamageSource(_R, _MAGIC, 45, 45, _MAGIC, _AP, 0.2, function() return (player:CanUseSpell(_R) == READY) end)--1 sphere
 
+	PrintChat("<font color=\"#00FF00\">Fantastik Syndra - Continuation of PentaKill Syndra by Fantastik loaded!</font>")
+	PrintChat("<font color=\"#00FF00\">Thanks to Sania for his awesome script!</font>")
+	
 	Menu = scriptConfig("Fantastik Syndra", "Fantastik Syndra")
 
 	Menu:addSubMenu("Orbwalking", "Orbwalking")
