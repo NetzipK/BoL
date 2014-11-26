@@ -19,11 +19,14 @@ Thanks to: Sania and anyone who helped him - For making this script and letting 
 If you've got more ideas, or want to report bugs and glitches, post on the topic.
 
 Changelog:
+* v 0.2
+ Fixed W on Combo
+
 * v 0.1
  Fixed Farm function for the new map.
 
 ]]--
-local version = 0.1
+local version = 0.2
 local AUTOUPDATE = true
 local SCRIPT_NAME = "Fantastik Syndra"
 local ForceUseSimpleTS = false
@@ -57,7 +60,7 @@ RequireI:Check()
 
 if RequireI.downloadNeeded == true then return end
 local Q = {range = 790, rangeSqr = math.pow(790, 2), width = 125, delay = 0.6, speed = math.huge, LastCastTime = 0, IsReady = function() return myHero:CanUseSpell(_Q) == READY end}
-local W = {range = 925, rangeSqr = math.pow(925, 2), width = 190, delay = 0.8, speed = math.huge, LastCastTime = 0, IsReady = function() return myHero:CanUseSpell(_W) == READY end, status = 0}
+local W = {range = 900, rangeSqr = math.pow(925, 2), width = 190, delay = 0.8, speed = math.huge, LastCastTime = 0, IsReady = function() return myHero:CanUseSpell(_W) == READY end, status = 0}
 local E = {range = 700, rangeSqr = math.pow(700, 2), width = 45 * 0.5, delay = 0.25, speed = 2500, LastCastTime = 0, IsReady = function() return myHero:CanUseSpell(_E) == READY end}
 local R = {range = 725, rangeSqr = math.pow(725, 2), delay = 0.25, IsReady = function() return myHero:CanUseSpell(_R) == READY end}
 local QE = {range = 1280, rangeSqr = math.pow(1280, 2), width = 60, delay = 0, speed = 1600}
@@ -120,7 +123,7 @@ function OnLoad()
 		Menu.Combo:addParam("UseQ", "Use Q", SCRIPT_PARAM_ONOFF, true)
 		Menu.Combo:addParam("UseW", "Use W", SCRIPT_PARAM_ONOFF, true)
 		Menu.Combo:addParam("UseE", "Use E", SCRIPT_PARAM_ONOFF, true)
-		Menu.Combo:addParam("UseEQ", "Use QE", SCRIPT_PARAM_ONOFF, true)
+		Menu.Combo:addParam("UseEQ", "Use QE", SCRIPT_PARAM_ONOFF, false)
 		Menu.Combo:addParam("UseR", "Use R", SCRIPT_PARAM_ONOFF, true)
 		Menu.Combo:addParam("AntiOverKill", "Don't use R if enemy is killable with Q", SCRIPT_PARAM_ONOFF, true)
 		Menu.Combo:addParam("Enabled", "Use Combo!", SCRIPT_PARAM_ONKEYDOWN, false, 32)
@@ -193,8 +196,9 @@ function GetCombo(target)
 	if target ~= nil then
 		local result = {}
 		for i, spell in ipairs(MainCombo) do
-			--if (spell == ItemManager:GetItem("DFG"):GetId()) and GetDistanceSqr(target.visionPos, myHero.visionPos) < math.pow(650, 2) then 
-				--table.insert(result, spell)
+			--[[if (spell == ItemManager:GetItem("DFG"):GetId()) and GetDistanceSqr(target.visionPos, myHero.visionPos) < math.pow(650, 2) then 
+				table.insert(result, spell)
+			end]]
 			if (spell == _SpellIGNITE) and GetDistanceSqr(target.visionPos, myHero.visionPos) < math.pow(600, 2) then
 				table.insert(result, spell)
 			else
@@ -645,7 +649,7 @@ function UseSpells(UseQ, UseW, UseE, UseEQ, UseR, forcedtarget)
 				end
 				
 				if hitchance >= Menu.HitChance.HitChance and pos and pos.z then
-					CastSpell(_W, pos.x, pos.z)
+					DelayAction(function() CastSpell(_W, pos.x, pos.z) end, 0.3)
 				end
 			end
 		end
