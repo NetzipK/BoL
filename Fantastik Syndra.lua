@@ -19,6 +19,11 @@ Thanks to: Sania and anyone who helped him - For making this script and letting 
 If you've got more ideas, or want to report bugs and glitches, post on the topic.
 
 Changelog:
+* v 0.3
+ Improved Farm function
+ Added Zhonya's support
+ Offensive item support
+
 * v 0.2
  Fixed W on Combo
 
@@ -26,7 +31,7 @@ Changelog:
  Fixed Farm function for the new map.
 
 ]]--
-local version = 0.2
+local version = 0.3
 local AUTOUPDATE = true
 local SCRIPT_NAME = "Fantastik Syndra"
 local ForceUseSimpleTS = false
@@ -174,6 +179,10 @@ function OnLoad()
 			AntiGapcloser(Menu.Misc.AG, OnGapclose)
 
 		Menu.Misc:addParam("MEQ", "Manual Q+E Combo", SCRIPT_PARAM_ONKEYDOWN, false,   string.byte("T"))
+		
+		Menu.Misc:addSubMenu("Zhonya's settings", "Zhonya")
+		Menu.Misc.Zhonya:addParam("enabled", "Use Auto Zhonya's", SCRIPT_PARAM_ONOFF, true)
+		Menu.Misc.Zhonya:addParam("zhonyapls", "Min. % health for Zhonya's", SCRIPT_PARAM_SLICE, 15, 1, 50, 0)
 
 	Menu:addSubMenu("Drawings", "Drawings")
 		DManager:CreateCircle(myHero, Q.range, 1, {255, 255, 255, 255}):AddToMenu(Menu.Drawings, SpellToString(_Q).." Range", true, true, true)
@@ -196,9 +205,8 @@ function GetCombo(target)
 	if target ~= nil then
 		local result = {}
 		for i, spell in ipairs(MainCombo) do
-			--[[if (spell == ItemManager:GetItem("DFG"):GetId()) and GetDistanceSqr(target.visionPos, myHero.visionPos) < math.pow(650, 2) then 
-				table.insert(result, spell)
-			end]]
+			--if (spell == ItemManager:GetItem("DFG"):GetId()) and GetDistanceSqr(target.visionPos, myHero.visionPos) < math.pow(650, 2) then 
+			--	table.insert(result, spell)
 			if (spell == _SpellIGNITE) and GetDistanceSqr(target.visionPos, myHero.visionPos) < math.pow(600, 2) then
 				table.insert(result, spell)
 			else
@@ -728,13 +736,13 @@ function UseSpells(UseQ, UseW, UseE, UseEQ, UseR, forcedtarget)
 	if UseR and not Q.IsReady() and not W.IsReady() then
 		if ((Qtarget and not Menu.R.Targets[Qtarget.hash]) or (Rtarget and not Menu.R.Targets[Rtarget.hash])) then
 			if Qtarget and ((GetDistanceSqr(Qtarget.visionPos, myHero.visionPos) < R.rangeSqr and DLib:IsKillable(Qtarget, GetCombo(Qtarget)) and (not Menu.Combo.AntiOverKill or not DLib:IsKillable(Qtarget, {_AQ})) and not DLib:IsKillable(Qtarget, {_Q, _W})) or (os.clock() - UseRTime < 10)) then
-				--ItemManager:CastOffensiveItems(Qtarget)
+				ItemManager:CastOffensiveItems(Qtarget)
 				if _SpellIGNITE and GetDistanceSqr(Qtarget.visionPos, myHero.visionPos) < 600 * 600 then
 					CastSpell(_SpellIGNITE, Qtarget)
 				end
 				CastSpell(_R, Qtarget)
 			elseif Rtarget and ((GetDistanceSqr(Rtarget.visionPos, myHero.visionPos) < R.rangeSqr and DLib:IsKillable(Rtarget, GetCombo(Rtarget)) and (not Menu.Combo.AntiOverKill or not DLib:IsKillable(Rtarget, {_AQ})) and not DLib:IsKillable(Rtarget, {_Q, _W})) or (os.clock() - UseRTime < 10)) then
-				--ItemManager:CastOffensiveItems(Rtarget)
+				ItemManager:CastOffensiveItems(Rtarget)
 				if _SpellIGNITE and GetDistanceSqr(Rtarget.visionPos, myHero.visionPos) < 600 * 600 then
 					CastSpell(_SpellIGNITE, Rtarget)
 				end
@@ -791,6 +799,7 @@ function OnTick()
 	SxOrb:EnableAttacks()
 	UpdateSpellData()--update the spells data
 	DrawEQIndicators = false
+	Zhonyas()
 	
 	if Menu.Combo.Enabled then
 		Combo()
@@ -886,26 +895,40 @@ function Farm()
 	local UseW = Menu.Farm.LaneClear and (Menu.Farm.UseW >= 3) or (Menu.Farm.UseW == 2 or Menu.Farm.UseW == 4)
 	local UseE = Menu.Farm.LaneClear and (Menu.Farm.UseE >= 3) or (Menu.Farm.UseE == 2 or Menu.Farm.UseE == 4)
 	
-	local Minions = SelectUnits(EnemyMinions.objects, function(t) return ValidTarget(t) and GetDistanceSqr(t) < W.rangeSqr end)
+	local CasterMinions = SelectUnits(EnemyMinions.objects, function(t) return (t.charName:lower():find("range") or t.charName:lower():find("siege")) and ValidTarget(t) and GetDistanceSqr(t) < W.rangeSqr end)
+	local MeleeMinions = SelectUnits(EnemyMinions.objects, function(t) return (t.charName:lower():find("melee") or t.charName:lower():find("super")) and ValidTarget(t) and GetDistanceSqr(t) < W.rangeSqr end)
 	
 	if UseW then
 		if W.status == 0 then
-			if #Minions > 1 then
-				CastSpell(_W, Minions[1].x, Minions[1].z)
+			if #MeleeMinions > 1 then
+				CastSpell(_W, MeleeMinions[1].x, MeleeMinions[1].z)
+			elseif #CasterMinions > 1 then
+				CastSpell(_W, CasterMinions[1].x, CasterMinions[1].z)
 			end
 		else
-			local BestPos, BestHit = GetBestCircularFarmPosition(W.range, W.width, Minions)
-			if BestHit > 2 or (BestPos and #Minions <= 2) then
-				CastSpell(_W, BestPos.x, BestPos.z)
+			local BestPos1, BestHit1 = GetBestCircularFarmPosition(W.range, W.width, CasterMinions)
+			local BestPos2, BestHit2 = GetBestCircularFarmPosition(W.range, W.width, MeleeMinions)
+
+			if BestHit1 > 2 or (BestPos1 and #CasterMinions <= 2) then
+				CastSpell(_W, BestPos1.x, BestPos1.z)
+			elseif BestHit2 > 2 or (BestPos2 and #MeleeMinions <= 2) then
+				CastSpell(_W, BestPos2.x, BestPos2.z)
 			end
+
 		end
 	end
 
 	if UseQ and ( not UseW or W.status == 0 ) then
-		Minions = GetPredictedPositionsTable(VP, Minions, Q.delay, Q.width, Q.range + Q.width, math.huge, myHero, false)
-		local BestPos, BestHit = GetBestCircularFarmPosition(Q.range + Q.width, Q.width, Minions)
-		if BestPos and BestHit > 1 then
-			CastSpell(_Q, BestPos.x, BestPos.z)
+		CasterMinions = GetPredictedPositionsTable(VP, CasterMinions, Q.delay, Q.width, Q.range + Q.width, math.huge, myHero, false)
+		MeleeMinions = GetPredictedPositionsTable(VP, MeleeMinions, Q.delay, Q.width, Q.range + Q.width, math.huge, myHero, false)
+
+		local BestPos1, BestHit1 = GetBestCircularFarmPosition(Q.range + Q.width, Q.width, CasterMinions)
+		local BestPos2, BestHit2 = GetBestCircularFarmPosition(Q.range + Q.width, Q.width, MeleeMinions)
+
+		if BestPos1 and BestHit1 > 1 then
+			CastSpell(_Q, BestPos1.x, BestPos1.z)
+		elseif BestPos2 and BestHit2 > 1 then
+			CastSpell(_Q, BestPos2.x, BestPos2.z)
 		end
 	end
 
@@ -1008,4 +1031,14 @@ function JungleFarm()
 			CastSpell(_W, myHero.x, myHero.z)
 		end
 	end
+end
+
+function Zhonyas()
+	if Menu.Misc.Zhonya.enabled then
+		if GetInventoryHaveItem(3157) and GetInventoryItemIsCastable(3157) then
+			if myHero.health <=  myHero.maxHealth * (Menu.Misc.Zhonya.zhonyapls / 100) then
+				CastItem(3157)
+			end 
+		end 
+	end 
 end
