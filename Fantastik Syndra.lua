@@ -19,19 +19,24 @@ Thanks to: Sania and anyone who helped him - For making this script and letting 
 If you've got more ideas, or want to report bugs and glitches, post on the topic.
 
 Changelog:
+* v 0.4
+ A bit faster Combo
+ Fixed W prediction
+ Fixed W on Combo - Wish so this time
+
 * v 0.3
  Improved Farm function
  Added Zhonya's support
  Offensive item support
 
 * v 0.2
- Fixed W on Combo
+ Fixed W on Combo - NOPE
 
 * v 0.1
  Fixed Farm function for the new map.
 
 ]]--
-local version = 0.3
+local version = 0.4
 local AUTOUPDATE = true
 local SCRIPT_NAME = "Fantastik Syndra"
 local ForceUseSimpleTS = false
@@ -260,6 +265,9 @@ function OnProcessSpell(unit, spell)
 			E.LastCastTime = os.clock()
 		elseif spell.name == "SyndraW" then
 			W.LastCastTime = os.clock()
+			W.status = 0
+		elseif spell.name == "syndrawcast" then
+			W.status = 1
 		elseif spell.name == "syndrae5" then
 			E.LastCastTime = os.clock()
 		end
@@ -657,7 +665,7 @@ function UseSpells(UseQ, UseW, UseE, UseEQ, UseR, forcedtarget)
 				end
 				
 				if hitchance >= Menu.HitChance.HitChance and pos and pos.z then
-					DelayAction(function() CastSpell(_W, pos.x, pos.z) end, 0.3)
+					--[[DelayAction(function()]] CastSpell(_W, pos.x, pos.z)-- end, 0.3)
 				end
 			end
 		end
