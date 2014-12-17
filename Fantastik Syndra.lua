@@ -19,6 +19,9 @@ Thanks to: Sania and anyone who helped him - For making this script and letting 
 If you've got more ideas, or want to report bugs and glitches, post on the topic.
 
 Changelog:
+* v 0.45
+ Updated Packet for 4.21 patch!
+
 * v 0.4
  A bit faster Combo
  Fixed W prediction
@@ -36,7 +39,7 @@ Changelog:
  Fixed Farm function for the new map.
 
 ]]--
-local version = 0.4
+local version = 0.45
 local AUTOUPDATE = true
 local SCRIPT_NAME = "Fantastik Syndra"
 local ForceUseSimpleTS = false
@@ -475,12 +478,12 @@ function OnGapclose(unit, data)
 end
 
 function OnRecvPacket(p)
-	if p.header == 113 then
+	if p.header == 0xD7 then
 		p.pos = 1
 		local NetworkID = p:DecodeF()
 		local Active = p:Decode1()
 
-		if NetworkID and (Active == 1 or Active == 179 or Active == 217 or Active == 223 or Active == 185 or Active == 186 or Active == 183 or Active == 187  or Active == 184 or Active == 181 or Active == 182 or Active == 225 or Active == 219) then
+		if NetworkID and (Active == 224 or Active == 225 or Active == 226 or Active == 227 or Active == 228 or Active == 229) then
 			if not WObject then
 				for i, ball in ipairs(Balls) do
 					if ball.networkID == NetworkID then
