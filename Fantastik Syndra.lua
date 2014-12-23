@@ -19,8 +19,9 @@ Thanks to: Sania and anyone who helped him - For making this script and letting 
 If you've got more ideas, or want to report bugs and glitches, post on the topic.
 
 Changelog:
-* v 0.45
- Updated Packet for 4.21 patch!
+* v 0.5
+ Fixed W for new patch
+ Perfected W more
 
 * v 0.4
  A bit faster Combo
@@ -39,10 +40,13 @@ Changelog:
  Fixed Farm function for the new map.
 
 ]]--
-local version = 0.45
+local version = 0.5
 local AUTOUPDATE = true
 local SCRIPT_NAME = "Fantastik Syndra"
 local ForceUseSimpleTS = false
+
+local Recieved = 0
+local RecvCounter = 0
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -73,7 +77,7 @@ RequireI:Check()
 
 if RequireI.downloadNeeded == true then return end
 local Q = {range = 790, rangeSqr = math.pow(790, 2), width = 125, delay = 0.6, speed = math.huge, LastCastTime = 0, IsReady = function() return myHero:CanUseSpell(_Q) == READY end}
-local W = {range = 900, rangeSqr = math.pow(925, 2), width = 190, delay = 0.8, speed = math.huge, LastCastTime = 0, IsReady = function() return myHero:CanUseSpell(_W) == READY end, status = 0}
+local W = {range = 925, rangeSqr = math.pow(925, 2), width = 190, delay = 0.8, speed = math.huge, LastCastTime = 0, IsReady = function() return myHero:CanUseSpell(_W) == READY end, status = 0}
 local E = {range = 700, rangeSqr = math.pow(700, 2), width = 45 * 0.5, delay = 0.25, speed = 2500, LastCastTime = 0, IsReady = function() return myHero:CanUseSpell(_E) == READY end}
 local R = {range = 725, rangeSqr = math.pow(725, 2), delay = 0.25, IsReady = function() return myHero:CanUseSpell(_R) == READY end}
 local QE = {range = 1280, rangeSqr = math.pow(1280, 2), width = 60, delay = 0, speed = 1600}
@@ -90,6 +94,12 @@ local UseRTime = 0
 
 _SpellIGNITE  = GetSummonerSlot("summonerdot")
 local MainCombo = {_W, _E, _R, _R, _R, _SpellIGNITE}
+
+local Spots = 
+{
+			["BlueBlue"] = { ["x"] = 3982, ["y"] = 51.13, ["z"] = 7416 },
+			["PurpleBlue"] = { ["x"] = 10852, ["y"] = 52.1, ["z"] = 7554 },
+}
 
 function OnLoad()
 	
@@ -189,8 +199,12 @@ function OnLoad()
 		Menu.Misc:addParam("MEQ", "Manual Q+E Combo", SCRIPT_PARAM_ONKEYDOWN, false,   string.byte("T"))
 		
 		Menu.Misc:addSubMenu("Zhonya's settings", "Zhonya")
-		Menu.Misc.Zhonya:addParam("enabled", "Use Auto Zhonya's", SCRIPT_PARAM_ONOFF, true)
-		Menu.Misc.Zhonya:addParam("zhonyapls", "Min. % health for Zhonya's", SCRIPT_PARAM_SLICE, 15, 1, 50, 0)
+			Menu.Misc.Zhonya:addParam("enabled", "Use Auto Zhonya's", SCRIPT_PARAM_ONOFF, true)
+			Menu.Misc.Zhonya:addParam("zhonyapls", "Min. % health for Zhonya's", SCRIPT_PARAM_SLICE, 15, 1, 50, 0)
+			
+		Menu.Misc:addSubMenu("Jungle Stealer", "JungleSteal")
+			Menu.Misc.JungleSteal:addParam("enabled", "Use Jungle Stealer", SCRIPT_PARAM_ONKEYTOGGLE, false, string.byte("N"))
+			Menu.Misc.JungleSteal:addParam("JSdraw", "Draw Jungle Steal circles", SCRIPT_PARAM_ONOFF, true)
 
 	Menu:addSubMenu("Drawings", "Drawings")
 		DManager:CreateCircle(myHero, Q.range, 1, {255, 255, 255, 255}):AddToMenu(Menu.Drawings, SpellToString(_Q).." Range", true, true, true)
@@ -199,6 +213,19 @@ function OnLoad()
 		DManager:CreateCircle(myHero, R.range, 1, {255, 255, 255, 255}):AddToMenu(Menu.Drawings, SpellToString(_R).." Range", true, true, true)
 		DManager:CreateCircle(myHero, QE.range, 1, {255, 255, 255, 255}):AddToMenu(Menu.Drawings, "Q+E Range", true, true, true)
 		
+	Menu:addSubMenu("Debug", "debug")
+		Menu.debug:addSubMenu("Q", "Qdebug")
+			Menu.debug.Qdebug:addParam("QCastPrint", "Q Cast Print", SCRIPT_PARAM_ONOFF, false)
+			
+		Menu.debug:addSubMenu("W", "Wdebug")
+			Menu.debug.Wdebug:addParam("WCastPrint", "W Cast Print", SCRIPT_PARAM_ONOFF, false)
+			
+		Menu.debug:addSubMenu("E", "Edebug")
+			Menu.debug.Edebug:addParam("ECastPrint", "E Cast Print", SCRIPT_PARAM_ONOFF, false)
+			
+		Menu.debug:addSubMenu("R", "Rdebug")
+			Menu.debug.Rdebug:addParam("RCastPrint", "R Cast Print", SCRIPT_PARAM_ONOFF, false)
+			
 		
 	--[[Predicted damage on healthbars]]
 	DLib:AddToMenu(Menu.Drawings, MainCombo)
@@ -268,9 +295,10 @@ function OnProcessSpell(unit, spell)
 			E.LastCastTime = os.clock()
 		elseif spell.name == "SyndraW" then
 			W.LastCastTime = os.clock()
-			W.status = 0
+            Recieved = 0
+			RecvCounter = 0
 		elseif spell.name == "syndrawcast" then
-			W.status = 1
+			Recieved = 1
 		elseif spell.name == "syndrae5" then
 			E.LastCastTime = os.clock()
 		end
@@ -378,6 +406,7 @@ function AutoGrabPets()
 		local pet = GetPet(true)
 		if pet then
 			CastSpell(_W, pet.x, pet.z)
+			if Menu.debug.Wdebug.WCastPrint then PrintChat("Picked up pet with W") end
 		end
 	end
 end
@@ -455,6 +484,7 @@ function OnInterruptSpell(unit, spell)
 			StartEQCombo(unit)
 		else
 			CastSpell(_E, unit.visionPos.x, unit.visionPos.z)
+			if Menu.debug.Edebug.ECastPrint then PrintChat("Casted E to Interrupt") end
 		end
 
 	elseif GetDistanceSqr(unit.visionPos,  myHero.visionPos) < QE.rangeSqr and Q.IsReady() and E.IsReady() then
@@ -470,6 +500,7 @@ function OnGapclose(unit, data)
 			StartEQCombo(unit)
 		else
 			CastSpell(_E, unit.visionPos.x, unit.visionPos.z)
+			if Menu.debug.Edebug.ECastPrint then PrintChat("Casted E on Gapcloser") end
 		end
 
 	elseif GetDistanceSqr(unit.visionPos,  myHero.visionPos) < QE.rangeSqr and Q.IsReady() and E.IsReady() then
@@ -478,23 +509,34 @@ function OnGapclose(unit, data)
 end
 
 function OnRecvPacket(p)
-	if p.header == 0xD7 then
-		p.pos = 1
+	if p.header == 0x00D7 and W.IsReady() then
+		RecvCounter = RecvCounter + 1
+		p.pos = 13
 		local NetworkID = p:DecodeF()
-		local Active = p:Decode1()
+		if RecvCounter == 1 then
+			local Active = p:Decode1()
 
-		if NetworkID and (Active == 224 or Active == 225 or Active == 226 or Active == 227 or Active == 228 or Active == 229) then
-			if not WObject then
-				for i, ball in ipairs(Balls) do
-					if ball.networkID == NetworkID then
-						Balls[i].endT = os.clock() + BallDuration - GetLatency()/2000
+			if NetworkID then
+--				print("NetworkID")
+				if not WObject then
+--					print("Not WObject")
+					for i, ball in ipairs(Balls) do
+--						print("find balls")
+						if ball.networkID == NetworkID then
+							print("ball networkID == NetworkID")
+							Balls[i].endT = os.clock() + BallDuration - GetLatency()/2000
+						end
 					end
 				end
+--				print("objManager:GetObjectByNetworkId")
+--				WObject = objManager:GetObjectByNetworkId(NetworkID)
+				Recieved = 1
+			else
+				WObject = nil
+				Recieved = 0
 			end
-			WObject = objManager:GetObjectByNetworkId(NetworkID)
-		else
-			WObject = nil
 		end
+		WObject = objManager:GetObjectByNetworkId(NetworkID)
 	end
 end
 
@@ -537,6 +579,7 @@ function CastQE2(BallInfo)
 					if isOnSegment and GetDistanceSqr(pointLine, enemyPos) <= (QE.width + VP:GetHitBox(enemy))^2 then
 						if (E.delay + GetDistance(myHero.visionPos, BallInfo.object) / E.speed) >= (BallInfo.startT - os.clock()) then
 							CastSpell(_E, BallInfo.object.x, BallInfo.object.z)
+							if Menu.debug.Edebug.ECastPrint then PrintChat("Casted E on ball") end
 						else
 							DelayAction(function(t) CastQE3(t) end, BallInfo.startT - os.clock() - (E.delay + GetDistance(myHero.visionPos, BallInfo.object) / E.speed), {BallInfo})	
 						end				
@@ -552,6 +595,7 @@ function CastQE3(BallInfo)
 	if (E.delay + GetDistance(myHero.visionPos, BallInfo.object) / E.speed) >= (BallInfo.startT - os.clock()) then
 		if GetDistanceSqr(BallInfo.object, myHero.visionPos) < E.rangeSqr then
 			CastSpell(_E, BallInfo.object.x, BallInfo.object.z)
+			if Menu.debug.Edebug.ECastPrint then PrintChat("Casted E on ball") end
 		end
 	else
 		DelayAction(function(t) CastQE3(t) end, BallInfo.startT - os.clock() - (E.delay + GetDistance(myHero.visionPos, BallInfo.object) / E.speed), {BallInfo})	
@@ -580,6 +624,7 @@ function Cast2Q(target)
 		if hitchance >= Menu.HitChance.HitChance and QEtargetPos and QEtargetPos.z then 
 			local pos = Vector(myHero.visionPos) + Menu.EQ.Range * (Vector(QEtargetPos) - Vector(myHero.visionPos)):normalized()
 			CastSpell(_Q, pos.x, pos.z)
+			if Menu.debug.Qdebug.QCastPrint then PrintChat("Casted Q on target") end
 		end
 	else
 		if Qdistance then
@@ -595,6 +640,7 @@ function Cast2Q(target)
 			if hitchance >= Menu.HitChance.HitChance and QEtargetPos and QEtargetPos.z then 
 				local pos = Vector(myHero.visionPos) + Qdistance * (Vector(QEtargetPos) - Vector(myHero.visionPos)):normalized()
 				CastSpell(_Q, pos.x, pos.z)
+				if Menu.debug.Qdebug.QCastPrint then PrintChat("Casted Q on target") end
 			end
 		else
 
@@ -620,10 +666,12 @@ function Cast2Q(target)
 					if hitchance >= Menu.HitChance.HitChance and pos and pos.z then
 						local posB = Vector(myHero.visionPos) + Menu.EQ.Range * (Vector(QEtargetPos) - Vector(myHero.visionPos)):normalized()
 						CastSpell(_Q, posB.x, posB.z)
+						if Menu.debug.Qdebug.QCastPrint then PrintChat("Casted Q on target") end
 					end
 				else
 					local pos = Vector(myHero.visionPos) + (GetDistance(QEtargetPos) - 50) * (Vector(QEtargetPos) - Vector(myHero.visionPos)):normalized()
 					CastSpell(_Q, pos.x, pos.z)
+					if Menu.debug.Qdebug.QCastPrint then PrintChat("Casted Q on target") end
 				end
 			end
 		end
@@ -655,22 +703,18 @@ function UseSpells(UseQ, UseW, UseE, UseEQ, UseR, forcedtarget)
 		UseR = false
 	end
 
-	if UseW and W.IsReady() then
-		if Qtarget and W.status == 1 and (os.clock() - Q.LastCastTime > 0.25) and (os.clock() - E.LastCastTime > (QE.range / QE.speed) +  (0.6 - (Menu.EQ.Range / QE.speed))) then
-			if WObject.charName == nil or WObject.charName:lower() ~= "heimertblue" then 
-
-				local pos, info, hitchance
-				if Menu.PredictionType.PredictionType == 1 then
-					pos, hitchance = VP:GetCircularCastPosition(Qtarget, W.delay, W.width, W.range, W.speed)
-				else
-					pos, info = Prodiction.GetPrediction(Qtarget, W.range, W.speed, W.delay, W.width)
-					hitchance = info.hitchance
-				end
+	if UseW and W.IsReady() and Qtarget and W.status == 1 and (os.clock() - Q.LastCastTime > 0.25) and (os.clock() - E.LastCastTime > (QE.range / QE.speed) +  (0.6 - (Menu.EQ.Range / QE.speed))) then
+		local pos, info, hitchance
+		if Menu.PredictionType.PredictionType == 1 then
+			pos, hitchance = VP:GetCircularCastPosition(Qtarget, W.delay, W.width, W.range, W.speed)
+		else
+			pos, info = Prodiction.GetPrediction(Qtarget, W.range, W.speed, W.delay, W.width)
+			hitchance = info.hitchance
+		end
 				
-				if hitchance >= Menu.HitChance.HitChance and pos and pos.z then
-					--[[DelayAction(function()]] CastSpell(_W, pos.x, pos.z)-- end, 0.3)
-				end
-			end
+		if hitchance >= Menu.HitChance.HitChance and pos and pos.z then
+			--[[DelayAction(function()]] CastSpell(_W, pos.x, pos.z)-- end, 0.3)
+			if Menu.debug.Wdebug.WCastPrint then PrintChat("Casted W on target") end
 		end
 	end
 
@@ -697,6 +741,7 @@ function UseSpells(UseQ, UseW, UseE, UseEQ, UseR, forcedtarget)
 
 			if hitchance >= Menu.HitChance.HitChance and pos and pos.z then
 				CastSpell(_Q, pos.x, pos.z)
+				if Menu.debug.Qdebug.QCastPrint then PrintChat("Casted Q on target") end
 			end
 		end
 	end
@@ -704,6 +749,7 @@ function UseSpells(UseQ, UseW, UseE, UseEQ, UseR, forcedtarget)
 	if UseE and E.IsReady() then
 		if Qtarget and DLib:IsKillable(Qtarget, {_E}) and GetDistanceSqr(Qtarget, myHero.visionPos) < E.rangeSqr then
 			CastSpell(_E, Qtarget.x, Qtarget.z)
+			if Menu.debug.Edebug.ECastPrint then PrintChat("Casted E on target") end
 		end
 		--Check to stun people with E
 		local validballs = GetValidBalls(true)
@@ -727,6 +773,7 @@ function UseSpells(UseQ, UseW, UseE, UseEQ, UseR, forcedtarget)
 							local pointSegment, pointLine, isOnSegment = VectorPointProjectionOnLineSegment(SP, EP, enemyPos)
 							if isOnSegment and GetDistanceSqr(pointLine, enemyPos) <= (QE.width + VP:GetHitBox(enemy))^2 then
 								CastSpell(_E, ball.object.x, ball.object.z)
+								if Menu.debug.Edebug.ECastPrint then PrintChat("Casted E on ball") end
 							end
 						end
 					end
@@ -739,7 +786,9 @@ function UseSpells(UseQ, UseW, UseE, UseEQ, UseR, forcedtarget)
 		if Qtarget and W.status == 0 and (os.clock() - E.LastCastTime > 0.7) and (os.clock() - Q.LastCastTime > 0.7) then
 			local validball = GetWValidBall()
 			if validball then
-				CastSpell(_W, validball.object.x, validball.object.z)
+				DelayAction(function() CastSpell(_W, validball.object.x, validball.object.z) end, 0.2)
+				W.status = 1
+				if Menu.debug.Wdebug.WCastPrint then PrintChat("Picked up ball with W") end
 			end
 		end
 	end
@@ -752,12 +801,14 @@ function UseSpells(UseQ, UseW, UseE, UseEQ, UseR, forcedtarget)
 					CastSpell(_SpellIGNITE, Qtarget)
 				end
 				CastSpell(_R, Qtarget)
+				if Menu.debug.Rdebug.RCastPrint then PrintChat("Casted R on target") end
 			elseif Rtarget and ((GetDistanceSqr(Rtarget.visionPos, myHero.visionPos) < R.rangeSqr and DLib:IsKillable(Rtarget, GetCombo(Rtarget)) and (not Menu.Combo.AntiOverKill or not DLib:IsKillable(Rtarget, {_AQ})) and not DLib:IsKillable(Rtarget, {_Q, _W})) or (os.clock() - UseRTime < 10)) then
 				ItemManager:CastOffensiveItems(Rtarget)
 				if _SpellIGNITE and GetDistanceSqr(Rtarget.visionPos, myHero.visionPos) < 600 * 600 then
 					CastSpell(_SpellIGNITE, Rtarget)
 				end
 				CastSpell(_R, Rtarget)
+				if Menu.debug.Rdebug.RCastPrint then PrintChat("Casted R on target") end
 			end
 		end
 	end
@@ -787,7 +838,7 @@ function UpdateSpellData()
 		R.rangeSqr = math.pow(800, 2)
 	end
 
-	W.status = WObject and 1 or 0
+--	W.status = WObject and 1 or 0
 end
 
 function Combo()
@@ -811,6 +862,11 @@ function OnTick()
 	UpdateSpellData()--update the spells data
 	DrawEQIndicators = false
 	Zhonyas()
+	
+	if Recieved == 1 and W.IsReady() then
+		W.status = 1
+	end
+	if not W.IsReady() then W.status = 0 Recieved = 0 end
 	
 	if Menu.Combo.Enabled then
 		Combo()
@@ -838,6 +894,10 @@ function OnTick()
 	if Menu.R.CastR then
 		UseRTime = os.clock()
 		DontUseRTime = 0
+	end
+	
+	if Menu.Misc.JungleSteal.enabled then
+		JungleSteal()
 	end
 
 	if Menu.Misc.MEQ and Q.IsReady() and E.IsReady() then
@@ -896,6 +956,14 @@ function OnDraw()
 		DrawText(tostring("AH"), 16, pos.x+1, pos.y+1, ARGB(255, 0, 0, 0))
 		DrawText(tostring("AH"), 16, pos.x, pos.y, ARGB(255, 255, 255, 255))
 	end
+	
+	if Menu.Misc.JungleSteal.JSdraw then
+		DrawCircle2(Spots.BlueBlue.x, Spots.BlueBlue.y, Spots.BlueBlue.z, 200, ARGB(255, 0, 255, 0))
+		DrawCircle2(Spots.PurpleBlue.x, Spots.PurpleBlue.y, Spots.PurpleBlue.z, 200, ARGB(255, 0, 255, 0))
+	end
+	
+--	DrawText("W Status: " ..W.status, 18, 100, 100, 0xFFFFFF00)
+--	if not WObject then DrawText("Wobject Nope.", 18, 100, 120, 0xFFFFFF00) end
 end
 
 
@@ -913,8 +981,10 @@ function Farm()
 		if W.status == 0 then
 			if #MeleeMinions > 1 then
 				CastSpell(_W, MeleeMinions[1].x, MeleeMinions[1].z)
+				if Menu.debug.Wdebug.WCastPrint then PrintChat("Picked melee minion with W") end
 			elseif #CasterMinions > 1 then
 				CastSpell(_W, CasterMinions[1].x, CasterMinions[1].z)
+				if Menu.debug.Wdebug.WCastPrint then PrintChat("Picked caster minion with W") end
 			end
 		else
 			local BestPos1, BestHit1 = GetBestCircularFarmPosition(W.range, W.width, CasterMinions)
@@ -922,24 +992,28 @@ function Farm()
 
 			if BestHit1 > 2 or (BestPos1 and #CasterMinions <= 2) then
 				CastSpell(_W, BestPos1.x, BestPos1.z)
+				if Menu.debug.Wdebug.WCastPrint then PrintChat("Thrown minion on Caster Minions with W") end
 			elseif BestHit2 > 2 or (BestPos2 and #MeleeMinions <= 2) then
 				CastSpell(_W, BestPos2.x, BestPos2.z)
+				if Menu.debug.Wdebug.WCastPrint then PrintChat("Thrown minion on Melee Minions with W") end
 			end
 
 		end
 	end
 
-	if UseQ and ( not UseW or W.status == 0 ) then
+	if UseQ then
 		CasterMinions = GetPredictedPositionsTable(VP, CasterMinions, Q.delay, Q.width, Q.range + Q.width, math.huge, myHero, false)
 		MeleeMinions = GetPredictedPositionsTable(VP, MeleeMinions, Q.delay, Q.width, Q.range + Q.width, math.huge, myHero, false)
 
 		local BestPos1, BestHit1 = GetBestCircularFarmPosition(Q.range + Q.width, Q.width, CasterMinions)
 		local BestPos2, BestHit2 = GetBestCircularFarmPosition(Q.range + Q.width, Q.width, MeleeMinions)
 
-		if BestPos1 and BestHit1 > 1 then
+		if BestPos1 and BestHit1 >= 1 then
 			CastSpell(_Q, BestPos1.x, BestPos1.z)
-		elseif BestPos2 and BestHit2 > 1 then
+			if Menu.debug.Qdebug.QCastPrint then PrintChat("Casted Q on Caster Minions") end
+		elseif BestPos2 and BestHit2 >= 1 then
 			CastSpell(_Q, BestPos2.x, BestPos2.z)
+			if Menu.debug.Qdebug.QCastPrint then PrintChat("Casted Q on Melee Minions") end
 		end
 	end
 
@@ -948,6 +1022,7 @@ function Farm()
 		local BestPos, BestHit = GetBestCircularFarmPosition(E.range, E.width, AllMinions)
 		if BestHit > 4 then
 			CastSpell(_E, BestPos.x, BestPos.z)
+			if Menu.debug.Edebug.ECastPrint then PrintChat("Casted E on Minions") end
 		else
 			local validballs = GetValidBalls()
 			local maxcount = 0
@@ -972,6 +1047,7 @@ function Farm()
 			end
 			if maxcount > 2 then
 				CastSpell(_E, maxpos.x, maxpos.z)
+				if Menu.debug.Edebug.ECastPrint then PrintChat("Casted E on Minions") end
 			end
 		end
 	end
@@ -1000,6 +1076,7 @@ function JungleFarm()
 			if ValidTarget(selectedTarget) and DLib:IsKillable(selectedTarget, {_Q, _W}) and GetDistanceSqr(myHero.visionPos, selectedTarget) <= W.rangeSqr and W.IsReady() then
 				if W.status == 0 then
 					CastSpell(_W, selectedTarget.x, selectedTarget.z)
+					if Menu.debug.Wdebug.WCastPrint then PrintChat("Picked Jungle Monster with W") end
 				end
 			end
 		else
@@ -1008,39 +1085,39 @@ function JungleFarm()
 					local validball = GetWValidBall(true)
 					if validball and validball.added then
 						CastSpell(_W, validball.object.x, validball.object.z)
+						if Menu.debug.Wdebug.WCastPrint then PrintChat("Picked ball with W") end
 						WUsed = true
 					end
 				else
-					if WObject.name and WObject.name:find("Seed") then
-						CastSpell(_W, CloseMinion)
-						WUsed = true
-					else
-						CastSpell(_W, myHero.x, myHero.z)
-						WUsed = true
-					end
+					CastSpell(_W, CloseMinion)
+					if Menu.debug.Wdebug.WCastPrint then PrintChat("Thrown Jungle Monster with W") end
+					WUsed = true
 				end
 			end
 
 			if UseQ then
 				CastSpell(_Q, CloseMinion)
+				if Menu.debug.Qdebug.QCastPrint then PrintChat("Casted Q on Jungle Monster") end
 			end
 
 			if UseE and os.clock() - Q.LastCastTime > 1 then
 				CastSpell(_E, CloseMinion)
+				if Menu.debug.Edebug.ECastPrint then PrintChat("Casted E on Jungle Monster") end
 			end
 		end
 	elseif ValidTarget(FarMinion) and GetDistanceSqr(FarMinion) <= (Q.range + 588)^2 and GetDistanceSqr(FarMinion) > Q.rangeSqr and DLib:IsKillable(FarMinion, {_E}) then
 		if Q.IsReady() and E.IsReady() then
 			local QPos = Vector(myHero.visionPos) + Q.range * (Vector(FarMinion) - Vector(myHero)):normalized()
 			CastSpell(_Q, QPos.x, QPos.z)
+			if Menu.debug.Qdebug.QCastPrint then PrintChat("Casted Q on far Jungle Monster") end
 			QECombo = os.clock()
 		end
 	end
 
 	if W.status == 1 and not WUsed then
-		if (not WObject.name or not WObject.name:find("Seed")) and WObject.type == 'obj_AI_Minion' then
-			CastSpell(_W, myHero.x, myHero.z)
-		end
+--		if (not WObject.name or not WObject.name:find("Seed")) and WObject.type == 'obj_AI_Minion' then
+		CastSpell(_W, CloseMinion)
+		if Menu.debug.Wdebug.WCastPrint then PrintChat("Thrown Jungle Monster on myself") end
 	end
 end
 
@@ -1052,4 +1129,51 @@ function Zhonyas()
 			end 
 		end 
 	end 
+end
+
+function JungleSteal()
+
+	local Blue = SelectUnits(JungleMinions.objects, function(t) return t.charName:lower():find("blue") and ValidTarget(t) end)
+
+	if GetDistance(Spots.PurpleBlue) <= 25 and Menu.Misc.JungleSteal.enabled then
+		if W.status == 0 and W.IsReady() and Q.IsReady() then
+			if ValidTarget(Blue) then
+				CastSpell(_W, Blue.x, Blue.z)
+				if W.status == 1 then
+					CastSpell(_W, myHero.x, myHero.z)
+					CastSpell(_Q, Blue.x, Blue.z)
+				end
+			end
+		end
+	elseif GetDistance(Spots.PurpleBlue) > 25 and GetDistance(Spots.PurpleBlue, mousePos) < 225 then
+		myHero:MoveTo(Spots.PurpleBlue.x, Spots.PurpleBlue.z)
+	end
+end
+
+-- Barasia, vadash, viseversa
+function DrawCircleNextLvl(x, y, z, radius, width, color, chordlength)
+	radius = radius or 300
+	quality = math.max(8,round(180/math.deg((math.asin((chordlength/(2*radius)))))))
+	quality = 2 * math.pi / quality
+	radius = radius*.92
+	local points = {}
+	for theta = 0, 2 * math.pi + quality, quality do
+		local c = WorldToScreen(D3DXVECTOR3(x + radius * math.cos(theta), y, z - radius * math.sin(theta)))
+		points[#points + 1] = D3DXVECTOR2(c.x, c.y)
+	end
+	DrawLines2(points, width or 1, color or 4294967295)
+end
+
+function round(num)
+	if num >= 0 then return math.floor(num+.5) else return math.ceil(num-.5) end
+end
+
+function DrawCircle2(x, y, z, radius, color)
+	local vPos1 = Vector(x, y, z)
+	local vPos2 = Vector(cameraPos.x, cameraPos.y, cameraPos.z)
+	local tPos = vPos1 - (vPos1 - vPos2):normalized() * radius
+	local sPos = WorldToScreen(D3DXVECTOR3(tPos.x, tPos.y, tPos.z))
+	if OnScreen({ x = sPos.x, y = sPos.y }, { x = sPos.x, y = sPos.y }) then
+		DrawCircleNextLvl(x, y, z, radius, 1, color, 80)
+	end
 end
