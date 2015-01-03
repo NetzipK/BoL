@@ -219,7 +219,7 @@ Champions = {
     }},
     
     ["Akali"] = {charName = "Akali", skillshots = {
-        ["AkaliMota"] = {name = "AkaliMota", spellName = "AkaliMota", castDelay = 125, projectileName = "AkaliMota_mis.troy", projectileSpeed = 1300, range = 1500, radius = 60, type = "line",  SpellType = "castcel"}
+        ["AkaliMota"] = {name = "AkaliMota", spellName = "AkaliMota", castDelay = 125, projectileName = "AkaliMota_mis.troy", projectileSpeed = 1300, range = 1500, radius = 60, type = "line",  SpellType = "castcel"},
 		["AkaliShadowDance"] = {name = "AkaliShadowSwipe", spellName = "AkaliShadowSwipe", SpellType == "castcel"},
     }},
 	["Alistar"] = {charName = "Alistar", skillshots = {
