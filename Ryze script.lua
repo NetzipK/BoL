@@ -47,6 +47,8 @@ function RyzeMenu()
 	Config:addSubMenu("Drawings", "Draw") -- Explained above.
 		Config.Draw:addParam("DrawQ", "Draw Q range", SCRIPT_PARAM_ONOFF, true) -- Param for Q Range Drawing
 	
+	ts = TargetSelector(TARGET_LESS_CAST_PRIORITY, 700)
+    ts.name = "Focus"
 	Config:addSubMenu("Target Selector", "TS") -- Making a sub-menu for our target selector.
 		Config.TS:addTS(ts) -- We are adding the Target Selector menu inside our sub-menu.
 	
