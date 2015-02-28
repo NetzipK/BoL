@@ -40,7 +40,7 @@ if myHero.charName ~= "Rengar" then return end
 
 assert(load(Base64Decode("G0x1YVIAAQQEBAgAGZMNChoKAAAAAAAAAAAAAQIKAAAABgBAAEFAAAAdQAABBkBAAGUAAAAKQACBBkBAAGVAAAAKQICBHwCAAAQAAAAEBgAAAGNsYXNzAAQNAAAAU2NyaXB0U3RhdHVzAAQHAAAAX19pbml0AAQLAAAAU2VuZFVwZGF0ZQACAAAAAgAAAAgAAAACAAotAAAAhkBAAMaAQAAGwUAABwFBAkFBAQAdgQABRsFAAEcBwQKBgQEAXYEAAYbBQACHAUEDwcEBAJ2BAAHGwUAAxwHBAwECAgDdgQABBsJAAAcCQQRBQgIAHYIAARYBAgLdAAABnYAAAAqAAIAKQACFhgBDAMHAAgCdgAABCoCAhQqAw4aGAEQAx8BCAMfAwwHdAIAAnYAAAAqAgIeMQEQAAYEEAJ1AgAGGwEQA5QAAAJ1AAAEfAIAAFAAAAAQFAAAAaHdpZAAEDQAAAEJhc2U2NEVuY29kZQAECQAAAHRvc3RyaW5nAAQDAAAAb3MABAcAAABnZXRlbnYABBUAAABQUk9DRVNTT1JfSURFTlRJRklFUgAECQAAAFVTRVJOQU1FAAQNAAAAQ09NUFVURVJOQU1FAAQQAAAAUFJPQ0VTU09SX0xFVkVMAAQTAAAAUFJPQ0VTU09SX1JFVklTSU9OAAQEAAAAS2V5AAQHAAAAc29ja2V0AAQIAAAAcmVxdWlyZQAECgAAAGdhbWVTdGF0ZQAABAQAAAB0Y3AABAcAAABhc3NlcnQABAsAAABTZW5kVXBkYXRlAAMAAAAAAADwPwQUAAAAQWRkQnVnc3BsYXRDYWxsYmFjawABAAAACAAAAAgAAAAAAAMFAAAABQAAAAwAQACBQAAAHUCAAR8AgAACAAAABAsAAABTZW5kVXBkYXRlAAMAAAAAAAAAQAAAAAABAAAAAQAQAAAAQG9iZnVzY2F0ZWQubHVhAAUAAAAIAAAACAAAAAgAAAAIAAAACAAAAAAAAAABAAAABQAAAHNlbGYAAQAAAAAAEAAAAEBvYmZ1c2NhdGVkLmx1YQAtAAAAAwAAAAMAAAAEAAAABAAAAAQAAAAEAAAABAAAAAQAAAAEAAAABAAAAAUAAAAFAAAABQAAAAUAAAAFAAAABQAAAAUAAAAFAAAABgAAAAYAAAAGAAAABgAAAAUAAAADAAAAAwAAAAYAAAAGAAAABgAAAAYAAAAGAAAABgAAAAYAAAAHAAAABwAAAAcAAAAHAAAABwAAAAcAAAAHAAAABwAAAAcAAAAIAAAACAAAAAgAAAAIAAAAAgAAAAUAAABzZWxmAAAAAAAtAAAAAgAAAGEAAAAAAC0AAAABAAAABQAAAF9FTlYACQAAAA4AAAACAA0XAAAAhwBAAIxAQAEBgQAAQcEAAJ1AAAKHAEAAjABBAQFBAQBHgUEAgcEBAMcBQgABwgEAQAKAAIHCAQDGQkIAx4LCBQHDAgAWAQMCnUCAAYcAQACMAEMBnUAAAR8AgAANAAAABAQAAAB0Y3AABAgAAABjb25uZWN0AAQRAAAAc2NyaXB0c3RhdHVzLm5ldAADAAAAAAAAVEAEBQAAAHNlbmQABAsAAABHRVQgL3N5bmMtAAQEAAAAS2V5AAQCAAAALQAEBQAAAGh3aWQABAcAAABteUhlcm8ABAkAAABjaGFyTmFtZQAEJgAAACBIVFRQLzEuMA0KSG9zdDogc2NyaXB0c3RhdHVzLm5ldA0KDQoABAYAAABjbG9zZQAAAAAAAQAAAAAAEAAAAEBvYmZ1c2NhdGVkLmx1YQAXAAAACgAAAAoAAAAKAAAACgAAAAoAAAALAAAACwAAAAsAAAALAAAADAAAAAwAAAANAAAADQAAAA0AAAAOAAAADgAAAA4AAAAOAAAACwAAAA4AAAAOAAAADgAAAA4AAAACAAAABQAAAHNlbGYAAAAAABcAAAACAAAAYQAAAAAAFwAAAAEAAAAFAAAAX0VOVgABAAAAAQAQAAAAQG9iZnVzY2F0ZWQubHVhAAoAAAABAAAAAQAAAAEAAAACAAAACAAAAAIAAAAJAAAADgAAAAkAAAAOAAAAAAAAAAEAAAAFAAAAX0VOVgA="), nil, "bt", _ENV))() ScriptStatus("UHKILHKNIHK") 
 
-local sversion = "0.1"
+local sversion = "0.11"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BoLFantastik/BoL/master/Fantastik Rengar.lua".."?rand="..math.random(1,10000)
@@ -130,11 +130,11 @@ local _GAPCLOSER_SPELLS = {
 }
 
 local Items = {
-	Tiamat      = {Slot = function() return GetInventorySlotItem(3077) end},
-	Hydra       = {Slot = function() return GetInventorySlotItem(3074) end},
-	Botrk       = {Slot = function() return GetInventorySlotItem(3153) end},
-	Youmuu      = {Slot = function() return GetInventorySlotItem(3142) end},
-	BilgeWater  = {Slot = function() return GetInventorySlotItem(3144) end},
+	Tiamat      = {Slot = function() return GetInventorySlotItem(3077) end, IsReady = function() return (GetInventorySlotItem(3077) ~= nil and myHero:CanUseSpell(GetInventorySlotItem(3077)) == READY) end},
+	Hydra       = {Slot = function() return GetInventorySlotItem(3074) end, IsReady = function() return (GetInventorySlotItem(3074) ~= nil and myHero:CanUseSpell(GetInventorySlotItem(3074)) == READY) end},
+	Botrk       = {Slot = function() return GetInventorySlotItem(3153) end, IsReady = function() return (GetInventorySlotItem(3153) ~= nil and myHero:CanUseSpell(GetInventorySlotItem(3153)) == READY) end},
+	Youmuu      = {Slot = function() return GetInventorySlotItem(3142) end, IsReady = function() return (GetInventorySlotItem(3142) ~= nil and myHero:CanUseSpell(GetInventorySlotItem(3142)) == READY) end},
+	BilgeWater  = {Slot = function() return GetInventorySlotItem(3144) end, IsReady = function() return (GetInventorySlotItem(3144) ~= nil and myHero:CanUseSpell(GetInventorySlotItem(3144)) == READY) end},
 }
 
 local AA = {range = 125, PassiveRange = 600}
@@ -202,7 +202,7 @@ function OnTick()
 	
 	if Config.KeyBindings.ComboActive then
 		Combo()
-		if ValidTarget(target) and isSAC then
+		if ValidTarget(target) and isSX then
 			UseItems(target)
 		end
    	end
@@ -404,7 +404,7 @@ function Combo()
 				CastSpell(_E, CastPosition.x, CastPosition.z)
 			end
 		end
-		if Config.CSet.UseW and GetDistance(target) <= W.range - 50 and WREADY and not R.Invisible then
+		if Config.CSet.UseW and GetDistance(target) <= 400 and WREADY and not R.Invisible then
 			CastSpell(_W)
 		end
 	end
@@ -550,21 +550,21 @@ function OnDeleteObj(obj)
 end
 
 function UseItems(unit)
-	if Items.Botrk and Config.ISet.Botrk.UseBotrk and math.floor(myHero.health / myHero.maxHealth * 100) <= Config.ISet.Botrk.MaxOwnHealth and unit and ValidTarget(unit, 500) and math.floor(unit.health / unit.maxHealth * 100) >= Config.ISet.Botrk.MinEnemyHealth then
+	if Items.Botrk and Config.ISet.Botrk.UseBotrk and math.floor(myHero.health / myHero.maxHealth * 100) <= Config.ISet.Botrk.MaxOwnHealth and unit and ValidTarget(unit, 500) and math.floor(unit.health / unit.maxHealth * 100) >= Config.ISet.Botrk.MinEnemyHealth and Items.Botrk.IsReady() then
 		CastSpell(Items.Botrk.Slot(), unit)
 	end
-	if Items.BilgeWater and Config.ISet.Bilgewater.UseBilgewater and math.floor(myHero.health / myHero.maxHealth * 100) <= Config.ISet.Bilgewater.MaxOwnHealth and unit and ValidTarget(unit, 500) and math.floor(unit.health / unit.maxHealth * 100) >= Config.ISet.Bilgewater.MinEnemyHealth then
+	if Items.BilgeWater and Config.ISet.Bilgewater.UseBilgewater and math.floor(myHero.health / myHero.maxHealth * 100) <= Config.ISet.Bilgewater.MaxOwnHealth and unit and ValidTarget(unit, 500) and math.floor(unit.health / unit.maxHealth * 100) >= Config.ISet.Bilgewater.MinEnemyHealth and Items.BilgeWater.IsReady() then
 		CastSpell(Items.BilgeWater.Slot(), unit)
 	end
-	if Items.Youmuus and Config.ISet.Youmuu.UseYoumuu and unit and ValidTarget(unit, 500) then
+	if Items.Youmuus and Config.ISet.Youmuu.UseYoumuu and unit and ValidTarget(unit, 500) and Items.Youmuus.IsReady() then
 		CastSpell(Items.Youmuus.Slot())
-	elseif Items.Youmuus and Config.ISet.Youmuu.UseYoumuu and unit and R.Invisible then
+	elseif Items.Youmuus and Config.ISet.Youmuu.UseYoumuu and unit and R.Invisible and Items.Youmuus.IsReady() then
 		CastSpell(Items.Youmuus.Slot())
 	end
-	if Items.Tiamat and unit and GetDistance(unit) <= AA.range then
+	if Items.Tiamat and unit and GetDistance(unit) <= AA.range and Items.Tiamat.IsReady() then
 		CastSpell(Items.Tiamat.Slot())
 	end
-	if Items.Hydra and unit and GetDistance(unit) <= AA.range then
+	if Items.Hydra and unit and GetDistance(unit) <= AA.range and Items.Hydra.IsReady() then
 		CastSpell(Items.Hydra.Slot())
 	end
 end
