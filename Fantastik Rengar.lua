@@ -175,7 +175,6 @@ function OnTick()
 	for _, enemy in ipairs(GetEnemyHeroes()) do
 		if GetDistance(enemy) <= AA.range + 75 then
 			ts.target = enemy
-			print("New target: "..ts.target.charName)
 		end
 	end
 	
