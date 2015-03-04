@@ -33,6 +33,12 @@ if myHero.charName ~= "Rengar" then return end
 	-More minor stuff!
 	
 *Changelog:
+ *v 0.25
+	-Faster combo
+	-Better logic
+	-Choose to use empowered skills or not(Menu > Misc > Skill Settings)
+	-More minor tweaks
+
  *v 0.2
 	-Combo is way better now
 	-Tweaked Q after AA to a perfect one.
@@ -47,7 +53,7 @@ if myHero.charName ~= "Rengar" then return end
 
 assert(load(Base64Decode("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"), nil, "bt", _ENV))() ScriptStatus("UHKILHKNIHK") 
 
-local sversion = "0.2"
+local sversion = "0.25"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BoLFantastik/BoL/master/Fantastik Rengar.lua".."?rand="..math.random(1,10000)
@@ -144,7 +150,7 @@ local Items = {
 	BilgeWater  = {Slot = function() return GetInventorySlotItem(3144) end, IsReady = function() return (GetInventorySlotItem(3144) ~= nil and myHero:CanUseSpell(GetInventorySlotItem(3144)) == READY) end},
 }
 
-local AA = {range = 125, PassiveRange = 600}
+local AA = {range = 125, PassiveRange = 0}
 local Q = {IsReady = function() return myHero:CanUseSpell(_Q) == READY end}
 local W = {range = 500, IsReady = function() return myHero:CanUseSpell(_W) == READY end}
 local E = {range = 1000, delay = 0.5, speed = 1500, width = 80, IsReady = function() return myHero:CanUseSpell(_E) == READY end}
@@ -153,6 +159,9 @@ local I = {set = nil, damage = 0, IsReady = function() return (ignite ~= nil and
 
 local isSX = false
 local isSAC = false
+local isVisible = true
+
+local maxY = 0
 
 function OnLoad()
 	RengarMenu()
@@ -176,10 +185,13 @@ function OnTick()
 		SxOrb:ForceTarget(target)
 	end
 	
-	for _, enemy in ipairs(GetEnemyHeroes()) do
-		if GetDistance(enemy) <= AA.range + 75 then
-			ts.target = enemy
-		end
+	local lTarget = GetTarget()
+	if lTarget and ValidTarget(lTarget) and GetDistance(myHero, lTarget) < ts.range then
+		ts.target = lTarget
+	end
+	
+	if myHero.y > maxY then
+		maxY = myHero.y
 	end
 	
 	Minions:update()
@@ -196,7 +208,8 @@ function OnTick()
 	IREADY = (I.set ~= nil and myHero:CanUseSpell(I.set) == READY)
 	CheckItems()
 	HealW()
---	StackJungle()
+	GetVisible()
+	GetMidLeap()
 	
 	if ValidTarget(target) then
 		if Config.Misc.KS.KSI then
@@ -291,12 +304,14 @@ function RengarMenu()
 	Config:addSubMenu("Misc Settings", "Misc")
 		Config.Misc:addSubMenu("Q Settings", "QSet")
 			Config.Misc.QSet:addParam("QReset", "Use Q when AA not ready", SCRIPT_PARAM_ONOFF, true)
+			Config.Misc.QSet:addParam("UseQemp", "Use Q Empowered", SCRIPT_PARAM_ONOFF, true)
 		Config.Misc:addSubMenu("W Settings", "WSet")
 			Config.Misc.WSet:addParam("HealW", "Use W to heal when low", SCRIPT_PARAM_ONOFF, true)
 			Config.Misc.WSet:addParam("HealWs", "Min. % health to heal", SCRIPT_PARAM_SLICE, 40, 1, 100, 0)
+			Config.Misc.WSet:addParam("UseWemp", "Use W Empowered", SCRIPT_PARAM_ONOFF, true)
 		Config.Misc:addSubMenu("E Settings", "ESet")
-			Config.Misc.ESet:addSubMenu("Anti-Gapclosers", "AG")
-				AntiGapcloser(Config.Misc.ESet, OnGapclose)
+			AntiGapcloser(Config.Misc.ESet, OnGapclose)
+			Config.Misc.ESet:addParam("UseQemp", "Use E Empowered", SCRIPT_PARAM_ONOFF, true)
 		Config.Misc:addSubMenu("R Settings", "RSet")
 			Config.Misc.RSet:addParam("UseREmp", "Use R only when empowered", SCRIPT_PARAM_ONOFF, true)
 		Config.Misc:addSubMenu("Kill Steal Settings", "KS")
@@ -305,6 +320,7 @@ function RengarMenu()
 			Config.Misc.KS:addParam("KSE", "Use E to KS", SCRIPT_PARAM_ONOFF, true)
 			Config.Misc.KS:addParam("KSI", "Use Ignite to KS", SCRIPT_PARAM_ONOFF, true)
 --		Config.Misc:addParam("StackJungle", "Stack at jungle points", SCRIPT_PARAM_ONOFF, true)
+		Config.Misc:addParam("comboE", "Start invisible combo with E", SCRIPT_PARAM_ONKEYTOGGLE, false, string.byte("Z"))
 		Config.Misc:addParam("Debug", "Draw Debug", SCRIPT_PARAM_ONOFF, false)
 		
 	Config:addSubMenu("Key Settings", "KeyBindings")
@@ -358,8 +374,8 @@ function OnDraw()
 		DrawCircleMinimap(myHero.x, myHero.y, myHero.z, GetRrange())
 	end
 	if Config.Misc.Debug then
-		if not R.Invisible then
-			DrawText("Not Invisible", 18, 100, 100, 0xFFFFFF00)
+		if isVisible then
+			DrawText("Visible", 18, 100, 100, 0xFFFFFF00)
 		end
 		if IsEmpowered() then
 			DrawText("Empowered", 18, 100, 140, 0xFFFFFF00)
@@ -371,6 +387,7 @@ function OnDraw()
 	if ValidTarget(target) and isSX then
 		DrawCircle2(target.x, target.y, target.z, 100, 0xFF008000)
 	end
+	DrawText("Pos: "..maxY, 18, 100, 160, 0xFFFFFF00)
 end
 
 function GetRrange()
@@ -388,29 +405,67 @@ function GetRrange()
   end
 end
 
+function GetVisible()
+	if myHero.range < 700 and myHero.range > 150 then PassiveRange = myHero.range + 175 end
+	if myHero.range >= 700 then PassiveRange = myHero.range + 75 end
+	if myHero.range < 150 then PassiveRange = 125 end
+	
+	if PassiveRange > 150 then 
+		isVisible = false
+		LastVisible = os.clock()
+	else
+		isVisible = true
+	end
+end
+
+function GetMidLeap()
+	if myHero.y > 150 then
+		if isSX then
+			SxOrb:ResetAA()
+			SxOrb:DisableAttacks()
+		elseif isSAC then
+			_G.AutoCarry.Orbwalker:ResetAttackTimer()
+		end
+	else
+		if isSX then
+		DelayAction(function() 
+			SxOrb:EnableAttacks()
+		end, 0.5)
+		elseif isSAC then
+			DelayAction(function() 
+			SxOrb:EnableAttacks()
+		end, 0.5)
+		end
+	end
+end
+
 function Combo()
 	if ValidTarget(target) then
-		if Config.CSet.UseR and GetDistance(target) > E.range and RREADY and not R.Invisible then
-			if Config.Misc.RSet.UseREmp and IsEmpowered() then
-				CastSpell(_R)
-			elseif not Config.Misc.RSet.UseREmp then
-				CastSpell(_R)
-			end
+	
+		if Config.Misc.RSet.UseREmp and Config.CSet.UseR then
+			CastR(true)
+		elseif not Config.Misc.RSet.UseREmp and Config.CSet.UseR then
+			CastR(false)
 		end
-		if Config.CSet.UseQ and GetDistance(target) <= 200 and QREADY then
-			if not Config.Misc.QSet.QReset and not R.Invisible then
-				CastSpell(_Q)
-			end
+		
+		if Config.CSet.UseQ and not Config.Misc.QSet.UseQemp then
+			CastQ(false)
+		elseif Config.CSet.UseQ and Config.Misc.QSet.UseQemp then
+			CastQ(true)
 		end
-		if Config.CSet.UseE and GetDistance(target) <= E.range and GetDistance(target) > AA.range + 75 and EREADY and not R.Invisible then
-			local CastPosition, HitChance, CastPos = VP:GetLineCastPosition(target, E.delay, E.width, E.range, E.speed, myHero, true)
-			if HitChance >= 2 then
-				CastSpell(_E, CastPosition.x, CastPosition.z)
-			end
+		
+		if Config.CSet.UseE and not Config.Misc.ESet.UseEemp then
+			CastE(target, false)
+		elseif Config.CSet.UseE and Config.Misc.ESet.UseEemp then
+			CastE(target, true)
 		end
-		if Config.CSet.UseW and GetDistance(target) <= 400 and WREADY and not R.Invisible then
-			CastSpell(_W)
+		
+		if Config.CSet.UseW and not Config.Misc.WSet.UseWemp then
+			CastW(false)
+		elseif Config.CSet.UseW and Config.Misc.WSet.UseWemp then
+			CastW(true)
 		end
+		
 	end
 end
 
@@ -481,7 +536,7 @@ function OnGapclose(unit, data)
 end
 
 function HealW()
-	if IsEmpowered() and Config.Misc.WSet.HealW then
+	if IsEmpowered() and Config.Misc.WSet.HealW and Config.Misc.WSet.UseWemp then
 		if HealthManager() then
 			CastSpell(_W)
 		end
@@ -578,6 +633,49 @@ function UseItems(unit)
 	end
 	if Items.Hydra and unit and GetDistance(unit) <= AA.range and Items.Hydra.IsReady() then
 		CastSpell(Items.Hydra.Slot())
+	end
+end
+
+function CastQ(emp)
+	if not Config.Misc.QSet.QReset and not R.Invisible and QREADY and emp == false and not IsEmpowered() then
+		CastSpell(_Q)
+	end
+	if not Config.Misc.QSet.QReset and not R.Invisible and QREADY and emp == true then
+		CastSpell(_Q)
+	end
+end
+
+function CastW(emp)
+	if GetDistance(target) <= 400 and WREADY and not R.Invisible and emp == false and not IsEmpowered() then
+		CastSpell(_W)
+	end
+	if GetDistance(target) <= 400 and WREADY and not R.Invisible and emp == true then
+		CastSpell(_W)
+	end
+end
+
+function CastE(unit, emp)
+	if GetDistance(unit) <= E.range and EREADY and not R.Invisible and unit and emp == false and not IsEmpowered() then
+		local CastPosition, HitChance, CastPos = VP:GetLineCastPosition(unit, E.delay, E.width, E.range, E.speed, myHero, true)
+		if HitChance >= 2 then
+			CastSpell(_E, CastPosition.x, CastPosition.z)
+		end
+	end
+	if GetDistance(unit) <= E.range and EREADY and not R.Invisible and unit and emp == true then
+		local CastPosition, HitChance, CastPos = VP:GetLineCastPosition(unit, E.delay, E.width, E.range, E.speed, myHero, true)
+		if HitChance >= 2 then
+			CastSpell(_E, CastPosition.x, CastPosition.z)
+		end
+	end
+end
+
+function CastR(emp)
+	if GetDistance(target) > E.range and RREADY and not R.Invisible then
+		if emp == true and IsEmpowered() then
+			CastSpell(_R)
+		elseif emp == false then
+			CastSpell(_R)
+		end
 	end
 end
 
