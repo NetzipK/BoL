@@ -19,8 +19,8 @@ Thanks to: Sania and anyone who helped him - For making this script and letting 
 If you've got more ideas, or want to report bugs and glitches, post on the topic.
 
 Changelog:
-* v 0.65
- Fixed the script's common bugs.
+* v 0.7
+ Fixed the script to what it was!
 
 * v 0.6
  Free User support!
@@ -51,7 +51,7 @@ Changelog:
 
 assert(load(Base64Decode("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"), nil, "bt", _ENV))() ScriptStatus("VILJKJNJOHH") 
 
-local version = 0.65
+local version = 0.7
 local AUTOUPDATE = true
 local SCRIPT_NAME = "Fantastik Syndra"
 local ForceUseSimpleTS = false
@@ -250,9 +250,9 @@ function GetCombo(target)
 	if target ~= nil then
 		local result = {}
 		for i, spell in ipairs(MainCombo) do
-			--if (spell == ItemManager:GetItem("DFG"):GetId()) and GetDistance(target.visionPos, myHero.visionPos) < math.pow(650, 2) then 
+			--if (spell == ItemManager:GetItem("DFG"):GetId()) and GetDistanceSqr(target.visionPos, myHero) < math.pow(650, 2) then 
 			--	table.insert(result, spell)
-			if (spell == _SpellIGNITE) and GetDistance(target.visionPos, myHero.visionPos) < math.pow(600, 2) then
+			if (spell == _SpellIGNITE) and GetDistanceSqr(target.visionPos, myHero) < math.pow(600, 2) then
 				table.insert(result, spell)
 			else
 				table.insert(result, spell)
@@ -295,6 +295,7 @@ end
 
 -- Track the balls
 
+
 function OnProcessSpell(unit, spell)
 	if unit.isMe then
 		if spell.name == "SyndraQ" then
@@ -312,7 +313,7 @@ function OnProcessSpell(unit, spell)
 			E.LastCastTime = os.clock()
 		end
 	end
-	if (Menu.Harass.AAHarass) and (unit.team ~= myHero.team) and (GetDistance(myHero.visionPos, unit) <= Q.range) then
+	if (Menu.Harass.AAHarass) and (unit.team ~= myHero.team) and (GetDistance(myHero, unit) <= Q.range) then
 		if unit.type == myHero.type and unit ~= nil then
 			if spell.name:lower():find("attack") then
 				Harass(unit)
@@ -336,7 +337,7 @@ function GetValidBalls(ForE)
 	else
 		local result = {}
 		for i, ball in ipairs(Balls) do
-			if (ball.added or ball.startT <= os.clock() + (E.delay + GetDistance(myHero.visionPos, ball.object) / E.speed)) and Balls[i].endT >= os.clock() + (E.delay + GetDistance(myHero.visionPos, ball.object) / E.speed) and ball.object.valid then
+			if (ball.added or ball.startT <= os.clock() + (E.delay + GetDistance(myHero, ball.object) / E.speed)) and Balls[i].endT >= os.clock() + (E.delay + GetDistance(myHero, ball.object) / E.speed) and ball.object.valid then
 				if not WObject or ball.object.networkID ~= WObject.networkID then
 					table.insert(result, ball)
 				end
@@ -348,7 +349,7 @@ end
 
 function AddBall(obj)
 	for i = #Balls, 1, -1 do
-		if not Balls[i].added and GetDistance(Balls[i].object, obj) < 50*50 then
+		if not Balls[i].added and GetDistanceSqr(Balls[i].object, obj) < 50*50 then
 			Balls[i].added = true
 			Balls[i].object = obj
 			do return end
@@ -367,7 +368,7 @@ end
 
 function OnCreateObj(obj)
 	if obj and obj.valid then
-		if GetDistance(obj) < Q.rangeSqr * 2 then
+		if GetDistanceSqr(obj) < Q.rangeSqr * 2 then
 			if obj.name:find("Seed") then
 				DelayAction(AddBall, 0, {obj})
 			end
@@ -378,7 +379,7 @@ end
 function OnDeleteObj(obj)
 	if obj.name:find("Syndra_") and (obj.name:find("_Q_idle.troy") or obj.name:find("_Q_Lv5_idle.troy")) then
 		for i = #Balls, 1, -1 do
-			if Balls[i].object and Balls[i].object.valid and GetDistance(Balls[i].object, obj) < 50 * 50 then
+			if Balls[i].object and Balls[i].object.valid and GetDistanceSqr(Balls[i].object, obj) < 50 * 50 then
 				table.remove(Balls, i)
 				break
 			end
@@ -441,7 +442,7 @@ function GetWValidBall(OnlyBalls)
 
 	--Get the balls in W range
 	for i, ball in ipairs(all) do
-		if GetDistance(ball.object, myHero.visionPos) <= W.rangeSqr then
+		if GetDistanceSqr(ball.object, myHero) <= W.rangeSqr then
 			table.insert(inrange, ball)
 		end
 	end
@@ -473,7 +474,7 @@ function GetWValidBall(OnlyBalls)
 	JungleMinions:update()
 	PosiblePets:update()
 	local t = MergeTables(MergeTables(EnemyMinions.objects, JungleMinions.objects), PosiblePets.objects)
-	SelectUnits(t, function(t) return ValidTarget(t) and GetDistance(myHero.visionPos, t) < W.rangeSqr end)
+	SelectUnits(t, function(t) return ValidTarget(t) and GetDistanceSqr(myHero, t) < W.rangeSqr end)
 	if t[1] then
 		return {object = t[1]}
 	end
@@ -487,7 +488,7 @@ end
 
 
 function OnInterruptSpell(unit, spell)
-	if GetDistance(unit.visionPos, myHero.visionPos) < E.rangeSqr and E.IsReady() then
+	if GetDistanceSqr(unit.visionPos, myHero) < E.rangeSqr and E.IsReady() then
 		
 		if Q.IsReady() then
 			StartEQCombo(unit)
@@ -496,13 +497,13 @@ function OnInterruptSpell(unit, spell)
 			if Menu.debug.Edebug.ECastPrint then PrintChat("Casted E to Interrupt") end
 		end
 
-	elseif GetDistance(unit.visionPos,  myHero.visionPos) < QE.rangeSqr and Q.IsReady() and E.IsReady() then
+	elseif GetDistanceSqr(unit.visionPos,  myHero) < QE.rangeSqr and Q.IsReady() and E.IsReady() then
 		StartEQCombo(unit)
 	end 
 end
 
 function OnGapclose(unit, data)
-	if GetDistance(unit.visionPos, myHero.visionPos) < E.rangeSqr and E.IsReady() then
+	if GetDistanceSqr(unit.visionPos, myHero) < E.rangeSqr and E.IsReady() then
 		
 		if Q.IsReady() then
 			Qdistance = 300
@@ -512,7 +513,7 @@ function OnGapclose(unit, data)
 			if Menu.debug.Edebug.ECastPrint then PrintChat("Casted E on Gapcloser") end
 		end
 
-	elseif GetDistance(unit.visionPos,  myHero.visionPos) < QE.rangeSqr and Q.IsReady() and E.IsReady() then
+	elseif GetDistanceSqr(unit.visionPos,  myHero) < QE.rangeSqr and Q.IsReady() and E.IsReady() then
 		StartEQCombo(unit)
 	end 
 end
@@ -557,7 +558,7 @@ function OnCastQ(spell)
 						endT = os.clock() + BallDuration + Q.delay - GetLatency()/2000
 					 }
 	if (os.clock() - QECombo < 1.5) or (Menu.Combo.Enabled and (Menu.Combo.UseE or Menu.Combo.UseEQ)) or (Menu.Harass.Enabled and (Menu.Harass.UseE or Menu.Harass.UseEQ)) then
-		local Delay = Q.delay - (E.delay + GetDistance(myHero.visionPos, BallInfo.object) / E.speed)
+		local Delay = Q.delay - (E.delay + GetDistance(myHero, BallInfo.object) / E.speed)
 		DelayAction(function(t) CastQE2(t) end, Delay, {BallInfo})
 	else
 		Qdistance = nil
@@ -570,27 +571,27 @@ end
 function CastQE2(BallInfo)
 	for i, enemy in ipairs(GetEnemyHeroes()) do
 		if ValidTarget(enemy) then
-			if GetDistance(BallInfo.object, myHero.visionPos) < E.rangeSqr then
+			if GetDistanceSqr(BallInfo.object, myHero) < E.rangeSqr then
 
 				local enemyPos, info, hitchance
 
 				if Menu.PredictionType.PredictionType == 1 then
-					enemyPos, hitchance = VP:GetLineCastPosition(enemy, (E.delay + (GetDistance(myHero.visionPos, BallInfo.object) / E.speed) - (GetDistance(myHero.visionPos, BallInfo.object) / QE.speed)), QE.width, QE.range, QE.speed)
+					enemyPos, hitchance = VP:GetLineCastPosition(enemy, (E.delay + (GetDistance(myHero, BallInfo.object) / E.speed) - (GetDistance(myHero, BallInfo.object) / QE.speed)), QE.width, QE.range, QE.speed)
 				else
-					enemyPos, info = Prodiction.GetPrediction(enemy, QE.range, QE.speed, (E.delay + (GetDistance(myHero.visionPos, BallInfo.object) / E.speed) - (GetDistance(myHero.visionPos, BallInfo.object) / QE.speed)), QE.width)
+					enemyPos, info = Prodiction.GetPrediction(enemy, QE.range, QE.speed, (E.delay + (GetDistance(myHero, BallInfo.object) / E.speed) - (GetDistance(myHero, BallInfo.object) / QE.speed)), QE.width)
 					hitchance = info.hitchance
 				end
 
 				if hitchance >= Menu.HitChance.HitChance and enemyPos and enemyPos.z then		
-					local EP = Vector(BallInfo.object) +  (100+(-0.6 * GetDistance(BallInfo.object, myHero.visionPos) + 966)) * (Vector(BallInfo.object) - Vector(myHero.visionPos)):normalized()
-					local SP = Vector(BallInfo.object) - 100 * (Vector(BallInfo.object) - Vector(myHero.visionPos)):normalized()
+					local EP = Vector(BallInfo.object) +  (100+(-0.6 * GetDistance(BallInfo.object, myHero) + 966)) * (Vector(BallInfo.object) - Vector(myHero)):normalized()
+					local SP = Vector(BallInfo.object) - 100 * (Vector(BallInfo.object) - Vector(myHero)):normalized()
 					local pointSegment, pointLine, isOnSegment = VectorPointProjectionOnLineSegment(SP, EP, enemyPos)
-					if isOnSegment and GetDistance(pointLine, enemyPos) <= (QE.width + VP:GetHitBox(enemy))^2 then
-						if (E.delay + GetDistance(myHero.visionPos, BallInfo.object) / E.speed) >= (BallInfo.startT - os.clock()) then
+					if isOnSegment and GetDistanceSqr(pointLine, enemyPos) <= (QE.width + VP:GetHitBox(enemy))^2 then
+						if (E.delay + GetDistance(myHero, BallInfo.object) / E.speed) >= (BallInfo.startT - os.clock()) then
 							CastSpell(_E, BallInfo.object.x, BallInfo.object.z)
 							if Menu.debug.Edebug.ECastPrint then PrintChat("Casted E on ball") end
 						else
-							DelayAction(function(t) CastQE3(t) end, BallInfo.startT - os.clock() - (E.delay + GetDistance(myHero.visionPos, BallInfo.object) / E.speed), {BallInfo})	
+							DelayAction(function(t) CastQE3(t) end, BallInfo.startT - os.clock() - (E.delay + GetDistance(myHero, BallInfo.object) / E.speed), {BallInfo})	
 						end				
 					end
 				end
@@ -601,13 +602,13 @@ end
 
 
 function CastQE3(BallInfo)
-	if (E.delay + GetDistance(myHero.visionPos, BallInfo.object) / E.speed) >= (BallInfo.startT - os.clock()) then
-		if GetDistance(BallInfo.object, myHero.visionPos) < E.rangeSqr then
+	if (E.delay + GetDistance(myHero, BallInfo.object) / E.speed) >= (BallInfo.startT - os.clock()) then
+		if GetDistanceSqr(BallInfo.object, myHero) < E.rangeSqr then
 			CastSpell(_E, BallInfo.object.x, BallInfo.object.z)
 			if Menu.debug.Edebug.ECastPrint then PrintChat("Casted E on ball") end
 		end
 	else
-		DelayAction(function(t) CastQE3(t) end, BallInfo.startT - os.clock() - (E.delay + GetDistance(myHero.visionPos, BallInfo.object) / E.speed), {BallInfo})	
+		DelayAction(function(t) CastQE3(t) end, BallInfo.startT - os.clock() - (E.delay + GetDistance(myHero, BallInfo.object) / E.speed), {BallInfo})	
 	end				
 end
 
@@ -619,7 +620,7 @@ end
 
 function Cast2Q(target)
 	if not Q.IsReady() then return end
-	if GetDistance(target) > Q.rangeSqr then
+	if GetDistanceSqr(target) > Q.rangeSqr then
 
 		local QEtargetPos, info, hitchance
 		if Menu.PredictionType.PredictionType == 1 then
@@ -631,7 +632,7 @@ function Cast2Q(target)
 
 		
 		if hitchance >= Menu.HitChance.HitChance and QEtargetPos and QEtargetPos.z then 
-			local pos = Vector(myHero.visionPos) + Menu.EQ.Range * (Vector(QEtargetPos) - Vector(myHero.visionPos)):normalized()
+			local pos = Vector(myHero) + Menu.EQ.Range * (Vector(QEtargetPos) - Vector(myHero)):normalized()
 			CastSpell(_Q, pos.x, pos.z)
 			if Menu.debug.Qdebug.QCastPrint then PrintChat("Casted Q on target") end
 		end
@@ -647,7 +648,7 @@ function Cast2Q(target)
 			end
 
 			if hitchance >= Menu.HitChance.HitChance and QEtargetPos and QEtargetPos.z then 
-				local pos = Vector(myHero.visionPos) + Qdistance * (Vector(QEtargetPos) - Vector(myHero.visionPos)):normalized()
+				local pos = Vector(myHero) + Qdistance * (Vector(QEtargetPos) - Vector(myHero)):normalized()
 				CastSpell(_Q, pos.x, pos.z)
 				if Menu.debug.Qdebug.QCastPrint then PrintChat("Casted Q on target") end
 			end
@@ -663,7 +664,7 @@ function Cast2Q(target)
 
 
 			if hitchance >= Menu.HitChance.HitChance and QEtargetPos and QEtargetPos.z then
-				if GetDistance(QEtargetPos) > Q.rangeSqr then
+				if GetDistanceSqr(QEtargetPos) > Q.rangeSqr then
 
 					local pos, info, hitchance
 					if Menu.PredictionType.PredictionType == 1 then
@@ -673,12 +674,12 @@ function Cast2Q(target)
 						hitchance = info.hitchance
 					end
 					if hitchance >= Menu.HitChance.HitChance and pos and pos.z then
-						local posB = Vector(myHero.visionPos) + Menu.EQ.Range * (Vector(QEtargetPos) - Vector(myHero.visionPos)):normalized()
+						local posB = Vector(myHero) + Menu.EQ.Range * (Vector(QEtargetPos) - Vector(myHero)):normalized()
 						CastSpell(_Q, posB.x, posB.z)
 						if Menu.debug.Qdebug.QCastPrint then PrintChat("Casted Q on target") end
 					end
 				else
-					local pos = Vector(myHero.visionPos) + (GetDistance(QEtargetPos) - 50) * (Vector(QEtargetPos) - Vector(myHero.visionPos)):normalized()
+					local pos = Vector(myHero) + (GetDistance(QEtargetPos) - 50) * (Vector(QEtargetPos) - Vector(myHero)):normalized()
 					CastSpell(_Q, pos.x, pos.z)
 					if Menu.debug.Qdebug.QCastPrint then PrintChat("Casted Q on target") end
 				end
@@ -756,7 +757,7 @@ function UseSpells(UseQ, UseW, UseE, UseEQ, UseR, forcedtarget)
 	end
 
 	if UseE and E.IsReady() then
-		if Qtarget and DLib:IsKillable(Qtarget, {_E}) and GetDistance(Qtarget, myHero.visionPos) < E.rangeSqr then
+		if Qtarget and DLib:IsKillable(Qtarget, {_E}) and GetDistanceSqr(Qtarget, myHero) < E.rangeSqr then
 			CastSpell(_E, Qtarget.x, Qtarget.z)
 			if Menu.debug.Edebug.ECastPrint then PrintChat("Casted E on target") end
 		end
@@ -765,22 +766,22 @@ function UseSpells(UseQ, UseW, UseE, UseEQ, UseR, forcedtarget)
 		for i, enemy in ipairs(GetEnemyHeroes()) do
 			if ValidTarget(enemy) then
 				for i, ball in ipairs(validballs) do
-					if GetDistance(ball.object, myHero.visionPos) < E.rangeSqr then
+					if GetDistanceSqr(ball.object, myHero) < E.rangeSqr then
 
 						local enemyPos, info, hitchance
 						if Menu.PredictionType.PredictionType == 1 then
-							enemyPos, hitchance = VP:GetLineCastPosition(enemy, (E.delay + (GetDistance(myHero.visionPos, ball.object) / E.speed) - (GetDistance(myHero.visionPos, ball.object) / QE.speed)), QE.width, QE.range, QE.speed)
+							enemyPos, hitchance = VP:GetLineCastPosition(enemy, (E.delay + (GetDistance(myHero, ball.object) / E.speed) - (GetDistance(myHero, ball.object) / QE.speed)), QE.width, QE.range, QE.speed)
 						else
-							enemyPos, info = Prodiction.GetPrediction(enemy, QE.range, QE.speed, (E.delay + (GetDistance(myHero.visionPos, ball.object) / E.speed) - (GetDistance(myHero.visionPos, ball.object) / QE.speed)), QE.width)
+							enemyPos, info = Prodiction.GetPrediction(enemy, QE.range, QE.speed, (E.delay + (GetDistance(myHero, ball.object) / E.speed) - (GetDistance(myHero, ball.object) / QE.speed)), QE.width)
 							hitchance = info.hitchance
 						end
 
 
 						if hitchance >= Menu.HitChance.HitChance and enemyPos and enemyPos.z then				
-							local EP = Vector(ball.object) +  (100+(-0.6 * GetDistance(ball.object, myHero.visionPos) + 966)) * (Vector(ball.object) - Vector(myHero.visionPos)):normalized()
-							local SP = Vector(ball.object) - 100 * (Vector(ball.object) - Vector(myHero.visionPos)):normalized()
+							local EP = Vector(ball.object) +  (100+(-0.6 * GetDistance(ball.object, myHero) + 966)) * (Vector(ball.object) - Vector(myHero)):normalized()
+							local SP = Vector(ball.object) - 100 * (Vector(ball.object) - Vector(myHero)):normalized()
 							local pointSegment, pointLine, isOnSegment = VectorPointProjectionOnLineSegment(SP, EP, enemyPos)
-							if isOnSegment and GetDistance(pointLine, enemyPos) <= (QE.width + VP:GetHitBox(enemy))^2 then
+							if isOnSegment and GetDistanceSqr(pointLine, enemyPos) <= (QE.width + VP:GetHitBox(enemy))^2 then
 								CastSpell(_E, ball.object.x, ball.object.z)
 								if Menu.debug.Edebug.ECastPrint then PrintChat("Casted E on ball") end
 							end
@@ -804,16 +805,16 @@ function UseSpells(UseQ, UseW, UseE, UseEQ, UseR, forcedtarget)
 
 	if UseR and not Q.IsReady() and not W.IsReady() then
 		if ((Qtarget and not Menu.R.Targets[Qtarget.hash]) or (Rtarget and not Menu.R.Targets[Rtarget.hash])) then
-			if Qtarget and ((GetDistance(Qtarget.visionPos, myHero.visionPos) < R.rangeSqr and DLib:IsKillable(Qtarget, GetCombo(Qtarget)) and (not Menu.Combo.AntiOverKill or not DLib:IsKillable(Qtarget, {_AQ})) and not DLib:IsKillable(Qtarget, {_Q, _W})) or (os.clock() - UseRTime < 10)) then
+			if Qtarget and ((GetDistanceSqr(Qtarget.visionPos, myHero) < R.rangeSqr and DLib:IsKillable(Qtarget, GetCombo(Qtarget)) and (not Menu.Combo.AntiOverKill or not DLib:IsKillable(Qtarget, {_AQ})) and not DLib:IsKillable(Qtarget, {_Q, _W})) or (os.clock() - UseRTime < 10)) then
 				ItemManager:CastOffensiveItems(Qtarget)
-				if _SpellIGNITE and GetDistance(Qtarget.visionPos, myHero.visionPos) < 600 * 600 then
+				if _SpellIGNITE and GetDistanceSqr(Qtarget.visionPos, myHero) < 600 * 600 then
 					CastSpell(_SpellIGNITE, Qtarget)
 				end
 				CastSpell(_R, Qtarget)
 				if Menu.debug.Rdebug.RCastPrint then PrintChat("Casted R on target") end
-			elseif Rtarget and ((GetDistance(Rtarget.visionPos, myHero.visionPos) < R.rangeSqr and DLib:IsKillable(Rtarget, GetCombo(Rtarget)) and (not Menu.Combo.AntiOverKill or not DLib:IsKillable(Rtarget, {_AQ})) and not DLib:IsKillable(Rtarget, {_Q, _W})) or (os.clock() - UseRTime < 10)) then
+			elseif Rtarget and ((GetDistanceSqr(Rtarget.visionPos, myHero) < R.rangeSqr and DLib:IsKillable(Rtarget, GetCombo(Rtarget)) and (not Menu.Combo.AntiOverKill or not DLib:IsKillable(Rtarget, {_AQ})) and not DLib:IsKillable(Rtarget, {_Q, _W})) or (os.clock() - UseRTime < 10)) then
 				ItemManager:CastOffensiveItems(Rtarget)
-				if _SpellIGNITE and GetDistance(Rtarget.visionPos, myHero.visionPos) < 600 * 600 then
+				if _SpellIGNITE and GetDistanceSqr(Rtarget.visionPos, myHero) < 600 * 600 then
 					CastSpell(_SpellIGNITE, Rtarget)
 				end
 				CastSpell(_R, Rtarget)
@@ -824,7 +825,7 @@ function UseSpells(UseQ, UseW, UseE, UseEQ, UseR, forcedtarget)
 
 	if UseR and not Q:IsReady() and R:IsReady() and not DFGUsed then
 		for i, enemy in ipairs(GetEnemyHeroes()) do
-			if ValidTarget(enemy) and (not Menu.R.Targets[enemy.hash] or (os.clock() - UseRTime < 10)) and GetDistance(enemy.visionPos, myHero.visionPos) < R.rangeSqr then
+			if ValidTarget(enemy) and (not Menu.R.Targets[enemy.hash] or (os.clock() - UseRTime < 10)) and GetDistanceSqr(enemy.visionPos, myHero) < R.rangeSqr then
 				if DLib:IsKillable(enemy, GetUltCombo())  or (os.clock() - UseRTime < 10) then
 					if not DLib:IsKillable(enemy, {_Q, _E, _W})  or (os.clock() - UseRTime < 10) then
 						CastSpell(_R, enemy)
@@ -915,13 +916,13 @@ function OnTick()
 		local ClosestTargetMouse 
 		local closestdist = 200 * 200
 		for i, target in ipairs(PosibleTargets) do
-			local dist = GetDistance(mousePos, target)
+			local dist = GetDistanceSqr(mousePos, target)
 			if ValidTarget(target) and dist < closestdist then
 				ClosestTargetMouse = target
 				closestdist = dist
 			end
 		end
-		if ClosestTargetMouse and GetDistance(ClosestTargetMouse, myHero.visionPos) < QE.rangeSqr then
+		if ClosestTargetMouse and GetDistanceSqr(ClosestTargetMouse, myHero) < QE.rangeSqr then
 			StartEQCombo(ClosestTargetMouse)
 		end
 	end
@@ -931,7 +932,7 @@ function GetDistanceToClosestHero(p)
 	local result = math.huge
 	for i, enemy in ipairs(GetEnemyHeroes()) do
 		if ValidTarget(enemy) then
-			result = math.min(result, GetDistance(p, enemy))
+			result = math.min(result, GetDistanceSqr(p, enemy))
 		end
 	end
 	return result
@@ -983,8 +984,8 @@ function Farm()
 	local UseW = Menu.Farm.LaneClear and (Menu.Farm.UseW >= 3) or (Menu.Farm.UseW == 2 or Menu.Farm.UseW == 4)
 	local UseE = Menu.Farm.LaneClear and (Menu.Farm.UseE >= 3) or (Menu.Farm.UseE == 2 or Menu.Farm.UseE == 4)
 	
-	local CasterMinions = SelectUnits(EnemyMinions.objects, function(t) return (t.charName:lower():find("range") or t.charName:lower():find("siege")) and ValidTarget(t) and GetDistance(t) < W.rangeSqr end)
-	local MeleeMinions = SelectUnits(EnemyMinions.objects, function(t) return (t.charName:lower():find("melee") or t.charName:lower():find("super")) and ValidTarget(t) and GetDistance(t) < W.rangeSqr end)
+	local CasterMinions = SelectUnits(EnemyMinions.objects, function(t) return (t.charName:lower():find("range") or t.charName:lower():find("siege")) and ValidTarget(t) and GetDistanceSqr(t) < W.rangeSqr end)
+	local MeleeMinions = SelectUnits(EnemyMinions.objects, function(t) return (t.charName:lower():find("melee") or t.charName:lower():find("super")) and ValidTarget(t) and GetDistanceSqr(t) < W.rangeSqr end)
 	
 	if UseW then
 		if W.status == 0 then
@@ -1027,7 +1028,7 @@ function Farm()
 	end
 
 	if UseE and (not Q.IsReady() or not UseQ) then
-		local AllMinions = SelectUnits(EnemyMinions.objects, function(t) return ValidTarget(t) and GetDistance(t) < E.rangeSqr end)
+		local AllMinions = SelectUnits(EnemyMinions.objects, function(t) return ValidTarget(t) and GetDistanceSqr(t) < E.rangeSqr end)
 		local BestPos, BestHit = GetBestCircularFarmPosition(E.range, E.width, AllMinions)
 		if BestHit > 4 then
 			CastSpell(_E, BestPos.x, BestPos.z)
@@ -1038,13 +1039,13 @@ function Farm()
 			local maxpos
 
 			for i, ball in ipairs(validballs) do
-				if GetDistance(ball.object, myHero.visionPos) < Q.rangeSqr then
+				if GetDistanceSqr(ball.object, myHero) < Q.rangeSqr then
 					local Count = 0
 					for i, minion in ipairs(AllMinions) do
-						local EP = Vector(ball.object) +  (100+(-0.6 * GetDistance(ball.object, myHero.visionPos) + 966)) * (Vector(ball.object) - Vector(myHero.visionPos)):normalized()
-						local SP = Vector(myHero.visionPos)
+						local EP = Vector(ball.object) +  (100+(-0.6 * GetDistance(ball.object, myHero) + 966)) * (Vector(ball.object) - Vector(myHero)):normalized()
+						local SP = Vector(myHero)
 						local pointSegment, pointLine, isOnSegment = VectorPointProjectionOnLineSegment(SP, EP, minion)
-						if isOnSegment and GetDistance(pointLine, enemyPos) < QE.width * QE.width then
+						if isOnSegment and GetDistanceSqr(pointLine, enemyPos) < QE.width * QE.width then
 							Count = Count + 1
 						end
 					end
@@ -1068,7 +1069,7 @@ function JungleFarm()
 	local UseW = Menu.JungleFarm.UseW
 	local UseE = Menu.JungleFarm.UseE
 	local WUsed = false
-	local CloseMinions = SelectUnits(JungleMinions.objects, function(t) return GetDistance(t) <= W.rangeSqr and ValidTarget(t) end)
+	local CloseMinions = SelectUnits(JungleMinions.objects, function(t) return GetDistanceSqr(t) <= W.rangeSqr and ValidTarget(t) end)
 	local AllMinions = SelectUnits(JungleMinions.objects, function(t) return ValidTarget(t) end)
 
 	local CloseMinion = CloseMinions[1]
@@ -1082,7 +1083,7 @@ function JungleFarm()
 		if selectedTarget and selectedTarget.type == CloseMinion.type then
 			DrawJungleStealingIndicator = true
 			SxOrb:DisableAttacks()
-			if ValidTarget(selectedTarget) and DLib:IsKillable(selectedTarget, {_Q, _W}) and GetDistance(myHero.visionPos, selectedTarget) <= W.rangeSqr and W.IsReady() then
+			if ValidTarget(selectedTarget) and DLib:IsKillable(selectedTarget, {_Q, _W}) and GetDistanceSqr(myHero, selectedTarget) <= W.rangeSqr and W.IsReady() then
 				if W.status == 0 then
 					CastSpell(_W, selectedTarget.x, selectedTarget.z)
 					if Menu.debug.Wdebug.WCastPrint then PrintChat("Picked Jungle Monster with W") end
@@ -1114,9 +1115,9 @@ function JungleFarm()
 				if Menu.debug.Edebug.ECastPrint then PrintChat("Casted E on Jungle Monster") end
 			end
 		end
-	elseif ValidTarget(FarMinion) and GetDistance(FarMinion) <= (Q.range + 588)^2 and GetDistance(FarMinion) > Q.rangeSqr and DLib:IsKillable(FarMinion, {_E}) then
+	elseif ValidTarget(FarMinion) and GetDistanceSqr(FarMinion) <= (Q.range + 588)^2 and GetDistanceSqr(FarMinion) > Q.rangeSqr and DLib:IsKillable(FarMinion, {_E}) then
 		if Q.IsReady() and E.IsReady() then
-			local QPos = Vector(myHero.visionPos) + Q.range * (Vector(FarMinion) - Vector(myHero)):normalized()
+			local QPos = Vector(myHero) + Q.range * (Vector(FarMinion) - Vector(myHero)):normalized()
 			CastSpell(_Q, QPos.x, QPos.z)
 			if Menu.debug.Qdebug.QCastPrint then PrintChat("Casted Q on far Jungle Monster") end
 			QECombo = os.clock()
