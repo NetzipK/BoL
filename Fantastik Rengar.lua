@@ -53,7 +53,7 @@ if myHero.charName ~= "Rengar" then return end
 
 assert(load(Base64Decode("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"), nil, "bt", _ENV))() ScriptStatus("UHKILHKNIHK") 
 
-local sversion = "0.25"
+local sversion = "0.3"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BoLFantastik/BoL/master/Fantastik Rengar.lua".."?rand="..math.random(1,10000)
@@ -161,8 +161,6 @@ local isSX = false
 local isSAC = false
 local isVisible = true
 
-local maxY = 0
-
 function OnLoad()
 	RengarMenu()
 	print("<font color = \"#FF0000\">Fantastik Rengar</font> <font color = \"#fff8e7\">by Fantastik v. "..sversion.." loaded!</font>")
@@ -179,7 +177,7 @@ function GetCustomTarget()
 end
 
 function OnTick()
-	ts:update()
+
 	target = GetCustomTarget()
 	if isSX then
 		SxOrb:ForceTarget(target)
@@ -190,8 +188,8 @@ function OnTick()
 		ts.target = lTarget
 	end
 	
-	if myHero.y > maxY then
-		maxY = myHero.y
+	if lTarget and GetDistance(lTarget) <= AA.range then
+		myHero:Attack(lTarget)
 	end
 	
 	Minions:update()
@@ -251,9 +249,6 @@ end
 function OnRemoveBuff(unit, buff)
 	if unit.isMe and unit and buff.name == "RengarR" then
 		R.Invisible = false
-	end
-	if unit.isMe then
-		print(buff.name)
 	end
 end
 
@@ -387,7 +382,6 @@ function OnDraw()
 	if ValidTarget(target) and isSX then
 		DrawCircle2(target.x, target.y, target.z, 100, 0xFF008000)
 	end
-	DrawText("Pos: "..maxY, 18, 100, 160, 0xFFFFFF00)
 end
 
 function GetRrange()
@@ -504,7 +498,7 @@ end
 
 function OnProcessSpell(unit, spell)
 	if unit == myHero and spell.name:lower():find("attack") then
-		if Config.KeyBindings.ComboActive and QREADY and Config.CSet.UseQ and GetDistance(target) <= 200 and not R.Invisible and Config.Misc.QSet.QReset then
+		if Config.KeyBindings.ComboActive and QREADY and Config.CSet.UseQ and GetDistance(target) <= 200 and isVisible and Config.Misc.QSet.QReset then
 			DelayAction(function() CastSpell(_Q) end, spell.windUpTime + GetLatency() / 2000)
 		end
 	end
@@ -576,19 +570,19 @@ end
 
 function KS(unit, spell)
 	if spell == Q then
-		if QREADY and getDmg("Q", unit, myHero) > unit.health and not R.Invisible then
+		if QREADY and getDmg("Q", unit, myHero) > unit.health and isVisible then
 			if GetDistance(target) <= AA.range then
 				CastSpell(_Q)
 			end
 		end
 	elseif spell == W then
-		if WREADY and getDmg("W", unit, myHero) > unit.health and not R.Invisible then
+		if WREADY and getDmg("W", unit, myHero) > unit.health and isVisible then
 			if GetDistance(target) <= W.range then
 				CastSpell(_W)
 			end
 		end
 	elseif spell == E then
-		if EREADY and getDmg("E", unit, myHero) > unit.health and not R.Invisible then
+		if EREADY and getDmg("E", unit, myHero) > unit.health and isVisible then
 			if GetDistance(target) <= E.range then
 				CastSpell(_E, target.x, target.z)
 			end
@@ -625,7 +619,7 @@ function UseItems(unit)
 	end
 	if Items.Youmuus and Config.ISet.Youmuu.UseYoumuu and unit and ValidTarget(unit, 500) and Items.Youmuus.IsReady() then
 		CastSpell(Items.Youmuus.Slot())
-	elseif Items.Youmuus and Config.ISet.Youmuu.UseYoumuu and unit and R.Invisible and Items.Youmuus.IsReady() then
+	elseif Items.Youmuus and Config.ISet.Youmuu.UseYoumuu and unit and not isVisible and Items.Youmuus.IsReady() then
 		CastSpell(Items.Youmuus.Slot())
 	end
 	if Items.Tiamat and unit and GetDistance(unit) <= AA.range and Items.Tiamat.IsReady() then
@@ -637,31 +631,31 @@ function UseItems(unit)
 end
 
 function CastQ(emp)
-	if not Config.Misc.QSet.QReset and not R.Invisible and QREADY and emp == false and not IsEmpowered() then
+	if not Config.Misc.QSet.QReset and isVisible and QREADY and emp == false and not IsEmpowered() then
 		CastSpell(_Q)
 	end
-	if not Config.Misc.QSet.QReset and not R.Invisible and QREADY and emp == true then
+	if not Config.Misc.QSet.QReset and isVisible and QREADY and emp == true then
 		CastSpell(_Q)
 	end
 end
 
 function CastW(emp)
-	if GetDistance(target) <= 400 and WREADY and not R.Invisible and emp == false and not IsEmpowered() then
+	if GetDistance(target) <= 400 and WREADY and isVisible and emp == false and not IsEmpowered() then
 		CastSpell(_W)
 	end
-	if GetDistance(target) <= 400 and WREADY and not R.Invisible and emp == true then
+	if GetDistance(target) <= 400 and WREADY and isVisible and emp == true then
 		CastSpell(_W)
 	end
 end
 
 function CastE(unit, emp)
-	if GetDistance(unit) <= E.range and EREADY and not R.Invisible and unit and emp == false and not IsEmpowered() then
+	if GetDistance(unit) <= E.range and EREADY and isVisible and unit and emp == false and not IsEmpowered() then
 		local CastPosition, HitChance, CastPos = VP:GetLineCastPosition(unit, E.delay, E.width, E.range, E.speed, myHero, true)
 		if HitChance >= 2 then
 			CastSpell(_E, CastPosition.x, CastPosition.z)
 		end
 	end
-	if GetDistance(unit) <= E.range and EREADY and not R.Invisible and unit and emp == true then
+	if GetDistance(unit) <= E.range and EREADY and isVisible and unit and emp == true then
 		local CastPosition, HitChance, CastPos = VP:GetLineCastPosition(unit, E.delay, E.width, E.range, E.speed, myHero, true)
 		if HitChance >= 2 then
 			CastSpell(_E, CastPosition.x, CastPosition.z)
@@ -670,7 +664,7 @@ function CastE(unit, emp)
 end
 
 function CastR(emp)
-	if GetDistance(target) > E.range and RREADY and not R.Invisible then
+	if GetDistance(target) > E.range and RREADY and isVisible then
 		if emp == true and IsEmpowered() then
 			CastSpell(_R)
 		elseif emp == false then
