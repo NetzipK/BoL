@@ -11,7 +11,7 @@
 		
 		By Fantastik!
 		
-		Last Update: 15/May/2015, Version 2.3
+		Last Update: 16/June/2015, Version 2.3
 		
 		Changelog starting from 2.0:
 		  2.3:
