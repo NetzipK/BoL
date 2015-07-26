@@ -11,9 +11,12 @@
 		
 		By Fantastik!
 		
-		Last Update: 15/July/2015, Version 2.5
+		Last Update: 26/July/2015, Version 2.55
 		
 		Changelog starting from 2.0:
+		  2.55:
+		  	-Fixed turret aggro for patch 5.14
+		
 		  2.5:
 		  	-Updated for patch 5.13(2late)
 		  	-Added MMA support
