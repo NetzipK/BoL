@@ -1,1 +1,139 @@
 
+*v 2.55
+
+ Updated for patch 5.14
+
+ 
+
+*v 2.5
+
+ Updated for patch 5.13(2late)
+
+ Added MMA support
+
+ Fixed SxOrbwalk Q bug
+
+ Permabox is now removable (Menu>Misc)
+
+ Tweaked E spell info and usage
+
+ Added click target selector
+
+ Removed logics for SxOrbwalk and MMA as they are not needed there
+
+ 
+
+*v 2.4
+
+ Updated for patch 5.12
+
+ 
+
+*v 2.3
+
+ Added logic3
+
+ Fixed Use maximum 2 axes
+
+ Added tower support
+
+ Many more minor tweaks to catch logic
+
+ 
+
+*v 2.2
+
+ Added Harass key and options
+
+ Improved use W to reach function, will eat less mana
+
+ Added option to cast Q with maximum 2 axes, you can choose between modes (Menu > Misc > Q Settings).
+
+ 
+
+*v 2.1
+
+ Catch axe if only in mouse range has now 4 settings, for Combo, Farm, Both and None.(Menu > Misc > Q Settings)
+ Perfect Evadeee Integration, where doesn't take into account axes in dangerous areas, can be disabled.(Menu > Misc > Q Settings)
+ Reworked KS with ultimate.
+ More minor fixes.
+
+ 
+
+*v 2.0
+
+ Perfected axe catching logic.
+ Perfected combo logic.
+ Tweaked Ultimate KS, works a lot better.
+ Fixed some minor bugs.
+ Tweaked some minor logic.
+ Some more stuff I forgot.
+
+ 
+
+*v 1.0
+ Fixed crash on load screen
+ REWORKED Q Catch
+ Rekt the logic
+ 
+*v 0.98
+ Reworked axe catching
+ 2 logics to choose between in Q catch
+ SxOrb users perfected
+ Many more!
+ 
+*v 0.95
+ Reworked W to reach far axes!
+ Reworked E casting, will cast it better now!
+ Reworked on Interrupter and Anti-Gapcloser!
+ Removed SourceLib 4ever!
+ 
+*v 0.9
+ Reworked W usage!
+ Reworked W to reach far axes!
+ Tweaked Q Axe Catch for SAC:R
+ You can now disable the mouse draw
+ Lag Free mouse draw option
+ Better Utli KS
+ 
+*v 0.8
+ New Q Catch feature! If axe catch point is inside the Mouse range it will catch it, else it will juts leave it!
+ SxOrbwalk users, it's your day. Tweaks to Q Catch for SxOrbwalk users!
+ Uses W to reach far axes!
+ 
+*v 0.77
+ Fixed every problem with the Auth! It will be open for one more day, sorry for the delay.
+ 
+*v 0.75
+ All skins supported!
+ Will only cast R on dying enemy champions(wut)
+ Some Q Catch tweaks
+ 
+*v 0.7
+ Axe Catch logic is way better now
+ Won't catch axe if target is killable easily with 1 or 2 auto attacks
+ Removed the debug drawings
+ W save added
+ Beta-testers that had problem with not auth fixed
+ 
+*v 0.6
+ SAC:R support is more accurate
+ Catch Axes toggle key(as requested)
+ 
+*v 0.5
+SAC:R support beta stage!
+
+*v 0.35
+Fast update with a fix for some users that had weird error on start.
+Targeting is a bit better now.
+
+*v 0.3
+Fixed and made Q axe catch logic hella better.
+
+*v 0.2
+Better Q Catch logic
+Removed Print spam
+Fixed a Draw mistype
+
+*v 0.1
+Initial release
