@@ -1,3 +1,9 @@
+*v 2.6
+ Tweaked Q logic - will no longer walk to lost axes
+ Fixed R cast back
+ Added Baseult BETA
+
+
 
 *v 2.55
 
