@@ -1,3 +1,6 @@
+*v 2.65
+ Fixed for LoL patch 5.15
+
 *v 2.6
  Tweaked Q logic - will no longer walk to lost axes
  Fixed R cast back
