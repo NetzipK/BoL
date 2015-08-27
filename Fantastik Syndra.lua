@@ -634,7 +634,7 @@ function Cast2Q(target)
 		end
 
 		
-		if hitchance >= Menu.HitChance.HitChance and QEtargetPos and QEtargetPos.z then 
+		if hitchance >= Menu.HitChance.HitChance then 
 			local pos = Vector(myHero) + Menu.EQ.Range * (Vector(QEtargetPos) - Vector(myHero)):normalized()
 			CastSpell(_Q, pos.x, pos.z)
 			if Menu.debug.Qdebug.QCastPrint then PrintChat("Casted Q on target") end
@@ -650,7 +650,7 @@ function Cast2Q(target)
 				hitchance = info.hitchance
 			end
 
-			if hitchance >= Menu.HitChance.HitChance and QEtargetPos and QEtargetPos.z then 
+			if hitchance >= Menu.HitChance.HitChance then 
 				local pos = Vector(myHero) + Qdistance * (Vector(QEtargetPos) - Vector(myHero)):normalized()
 				CastSpell(_Q, pos.x, pos.z)
 				if Menu.debug.Qdebug.QCastPrint then PrintChat("Casted Q on target") end
@@ -676,7 +676,7 @@ function Cast2Q(target)
 						pos, info = Prodiction.GetPrediction(target, QE.range, QE.speed, 0.6 - (Menu.EQ.Range / QE.speed), QE.width)
 						hitchance = info.hitchance
 					end
-					if hitchance >= Menu.HitChance.HitChance and pos and pos.z then
+					if hitchance >= Menu.HitChance.HitChance then
 						local posB = Vector(myHero) + Menu.EQ.Range * (Vector(QEtargetPos) - Vector(myHero)):normalized()
 						CastSpell(_Q, posB.x, posB.z)
 						if Menu.debug.Qdebug.QCastPrint then PrintChat("Casted Q on target") end
@@ -692,22 +692,13 @@ function Cast2Q(target)
 end
 
 function UseSpells(UseQ, UseW, UseE, UseEQ, UseR, forcedtarget)
-
-	local Qtarget
-	local QEtarget
-	local Rtarget
+	local Qtarget = SxOrb:GetTarget(W.range)
+	local QEtarget = SxOrb:GetTarget(QE.range)
+	local Rtarget = SxOrb:GetTarget(R.range)
 	if forcedtarget ~= nil then
 		Qtarget = forcedtarget
 		QEtarget = forcedtarget
 		Rtarget = forcedtarget
-	elseif STS == nil then
-		Qtarget = Selector.GetTarget(SelectorMenu.Get().mode, 'AP', {distance = W.range})
-		QEtarget = Selector.GetTarget(SelectorMenu.Get().mode, 'AP', {distance = QE.range})
-		Rtarget = Selector.GetTarget(SelectorMenu.Get().mode, 'AP', {distance = R.range})
-	else
-		Qtarget = STS:GetTarget(W.range)
-		QEtarget = STS:GetTarget(QE.range)
-		Rtarget = STS:GetTarget(R.range)
 	end 
 
 	local DFGUsed = false
@@ -752,7 +743,7 @@ function UseSpells(UseQ, UseW, UseE, UseEQ, UseR, forcedtarget)
 				hitchance = info.hitchance
 			end
 
-			if hitchance >= Menu.HitChance.HitChance and pos and pos.z then
+			if hitchance >= Menu.HitChance.HitChance then
 				CastSpell(_Q, pos.x, pos.z)
 				if Menu.debug.Qdebug.QCastPrint then PrintChat("Casted Q on target") end
 			end
@@ -982,6 +973,15 @@ function OnDraw()
 	
 --	DrawText("W Status: " ..W.status, 18, 100, 100, 0xFFFFFF00)
 --	if not WObject then DrawText("Wobject Nope.", 18, 100, 120, 0xFFFFFF00) end
+	if Qtarget then
+		DrawText("Q target: " ..Qtarget, 18, 100, 100, 0xFFFFFF00)
+	end
+	if QEtarget then
+		DrawText(", QE target:"..QEtarget, 18, 100, 120, 0xFFFFFF00)
+	end
+	if Rtarget then
+		DrawText(", R target:"..Rtarget, 18, 100, 140, 0xFFFFFF00)
+	end
 end
 
 
