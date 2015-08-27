@@ -19,6 +19,9 @@ Thanks to: Sania and anyone who helped him - For making this script and letting 
 If you've got more ideas, or want to report bugs and glitches, post on the topic.
 
 Changelog:
+* v 0.8
+ Fixed all problems
+
 * v 0.7
  Fixed the script to what it was!
 
@@ -51,7 +54,7 @@ Changelog:
 
 assert(load(Base64Decode("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"), nil, "bt", _ENV))() ScriptStatus("VILJKJNJOHH") 
 
-local version = 0.7
+local version = 0.8
 local AUTOUPDATE = true
 local SCRIPT_NAME = "Fantastik Syndra"
 local ForceUseSimpleTS = false
@@ -147,7 +150,7 @@ function OnLoad()
 
          
          Menu:addSubMenu("Choose HitChance", "HitChance")
-         Menu.HitChance:addParam("HitChance", "HitChance", SCRIPT_PARAM_LIST, 1, { "LOW", "NORMAL"})
+         Menu.HitChance:addParam("HitChance", "HitChance", SCRIPT_PARAM_LIST, 1, { "LOW"})
 
          Menu:addSubMenu("Choose Prediction Type", "PredictionType")
          Menu.PredictionType:addParam("PredictionType", "Prediction Type", SCRIPT_PARAM_LIST, 1, { "Vprediction", "Prodiction"})
@@ -250,9 +253,9 @@ function GetCombo(target)
 	if target ~= nil then
 		local result = {}
 		for i, spell in ipairs(MainCombo) do
-			--if (spell == ItemManager:GetItem("DFG"):GetId()) and GetDistanceSqr(target.visionPos, myHero) < math.pow(650, 2) then 
+			--if (spell == ItemManager:GetItem("DFG"):GetId()) and GetDistanceSqr(target, myHero) < math.pow(650, 2) then 
 			--	table.insert(result, spell)
-			if (spell == _SpellIGNITE) and GetDistanceSqr(target.visionPos, myHero) < math.pow(600, 2) then
+			if (spell == _SpellIGNITE) and GetDistanceSqr(target, myHero) < math.pow(600, 2) then
 				table.insert(result, spell)
 			else
 				table.insert(result, spell)
@@ -412,7 +415,7 @@ function IsPetDangerous(name)
 end
 
 function AutoGrabPets()
-	if W.IsReady() and W.status == 0 then
+	if WREADY and W.status == 0 then
 		local pet = GetPet(true)
 		if pet then
 			CastSpell(_W, pet.x, pet.z)
@@ -488,38 +491,38 @@ end
 
 
 function OnInterruptSpell(unit, spell)
-	if GetDistanceSqr(unit.visionPos, myHero) < E.rangeSqr and E.IsReady() then
+	if GetDistanceSqr(unit, myHero) < E.rangeSqr and EREADY then
 		
-		if Q.IsReady() then
+		if QREADY then
 			StartEQCombo(unit)
 		else
-			CastSpell(_E, unit.visionPos.x, unit.visionPos.z)
+			CastSpell(_E, unit.x, unit.z)
 			if Menu.debug.Edebug.ECastPrint then PrintChat("Casted E to Interrupt") end
 		end
 
-	elseif GetDistanceSqr(unit.visionPos,  myHero) < QE.rangeSqr and Q.IsReady() and E.IsReady() then
+	elseif GetDistanceSqr(unit,  myHero) < QE.rangeSqr and QREADY and EREADY then
 		StartEQCombo(unit)
 	end 
 end
 
 function OnGapclose(unit, data)
-	if GetDistanceSqr(unit.visionPos, myHero) < E.rangeSqr and E.IsReady() then
+	if GetDistanceSqr(unit, myHero) < E.rangeSqr and EREADY then
 		
-		if Q.IsReady() then
+		if QREADY then
 			Qdistance = 300
 			StartEQCombo(unit)
 		else
-			CastSpell(_E, unit.visionPos.x, unit.visionPos.z)
+			CastSpell(_E, unit.x, unit.z)
 			if Menu.debug.Edebug.ECastPrint then PrintChat("Casted E on Gapcloser") end
 		end
 
-	elseif GetDistanceSqr(unit.visionPos,  myHero) < QE.rangeSqr and Q.IsReady() and E.IsReady() then
+	elseif GetDistanceSqr(unit,  myHero) < QE.rangeSqr and QREADY and EREADY then
 		StartEQCombo(unit)
 	end 
 end
 
 --[[function OnRecvPacket(p)
-	if p.header == 0x00D7 and W.IsReady() then
+	if p.header == 0x00D7 and WREADY then
 		RecvCounter = RecvCounter + 1
 		p.pos = 13
 		local NetworkID = p:DecodeF()
@@ -619,7 +622,7 @@ function StartEQCombo(unit)
 end
 
 function Cast2Q(target)
-	if not Q.IsReady() then return end
+	if not QREADY then return end
 	if GetDistanceSqr(target) > Q.rangeSqr then
 
 		local QEtargetPos, info, hitchance
@@ -713,7 +716,7 @@ function UseSpells(UseQ, UseW, UseE, UseEQ, UseR, forcedtarget)
 		UseR = false
 	end
 
-	if UseW and W.IsReady() and Qtarget and W.status == 1 and (os.clock() - Q.LastCastTime > 0.25) and (os.clock() - E.LastCastTime > (QE.range / QE.speed) +  (0.6 - (Menu.EQ.Range / QE.speed))) then
+	if UseW and WREADY and Qtarget and W.status == 1 and (os.clock() - Q.LastCastTime > 0.25) and (os.clock() - E.LastCastTime > (QE.range / QE.speed) +  (0.6 - (Menu.EQ.Range / QE.speed))) then
 		local pos, info, hitchance
 		if Menu.PredictionType.PredictionType == 1 then
 			pos, hitchance = VP:GetCircularCastPosition(Qtarget, W.delay, W.width, W.range, W.speed)
@@ -729,7 +732,7 @@ function UseSpells(UseQ, UseW, UseE, UseEQ, UseR, forcedtarget)
 	end
 
 	if UseEQ then
-		if (Qtarget or QEtarget) and E.IsReady() and Q.IsReady() then
+		if (Qtarget or QEtarget) and EREADY and QREADY then
 			if Qtarget then
 				StartEQCombo(Qtarget)
 			else
@@ -738,7 +741,7 @@ function UseSpells(UseQ, UseW, UseE, UseEQ, UseR, forcedtarget)
 		end
 	end
 
-	if UseQ and Q.IsReady() then
+	if UseQ and QREADY then
 		if Qtarget and os.clock() - W.LastCastTime > 0.25 and os.clock() - E.LastCastTime > 0.25 then
 
 			local pos, info, hitchance
@@ -756,7 +759,7 @@ function UseSpells(UseQ, UseW, UseE, UseEQ, UseR, forcedtarget)
 		end
 	end
 
-	if UseE and E.IsReady() then
+	if UseE and EREADY then
 		if Qtarget and DLib:IsKillable(Qtarget, {_E}) and GetDistanceSqr(Qtarget, myHero) < E.rangeSqr then
 			CastSpell(_E, Qtarget.x, Qtarget.z)
 			if Menu.debug.Edebug.ECastPrint then PrintChat("Casted E on target") end
@@ -792,7 +795,7 @@ function UseSpells(UseQ, UseW, UseE, UseEQ, UseR, forcedtarget)
 		end
 	end
 	
-	if UseW and W.IsReady() then
+	if UseW and WREADY then
 		if Qtarget and W.status == 0 and (os.clock() - E.LastCastTime > 0.7) and (os.clock() - Q.LastCastTime > 0.7) then
 			local validball = GetWValidBall()
 			if validball then
@@ -803,18 +806,18 @@ function UseSpells(UseQ, UseW, UseE, UseEQ, UseR, forcedtarget)
 		end
 	end
 
-	if UseR and not Q.IsReady() and not W.IsReady() then
+	if UseR and not QREADY and not WREADY then
 		if ((Qtarget and not Menu.R.Targets[Qtarget.hash]) or (Rtarget and not Menu.R.Targets[Rtarget.hash])) then
-			if Qtarget and ((GetDistanceSqr(Qtarget.visionPos, myHero) < R.rangeSqr and DLib:IsKillable(Qtarget, GetCombo(Qtarget)) and (not Menu.Combo.AntiOverKill or not DLib:IsKillable(Qtarget, {_AQ})) and not DLib:IsKillable(Qtarget, {_Q, _W})) or (os.clock() - UseRTime < 10)) then
+			if Qtarget and ((GetDistanceSqr(Qtarget, myHero) < R.rangeSqr and DLib:IsKillable(Qtarget, GetCombo(Qtarget)) and (not Menu.Combo.AntiOverKill or not DLib:IsKillable(Qtarget, {_AQ})) and not DLib:IsKillable(Qtarget, {_Q, _W})) or (os.clock() - UseRTime < 10)) then
 				ItemManager:CastOffensiveItems(Qtarget)
-				if _SpellIGNITE and GetDistanceSqr(Qtarget.visionPos, myHero) < 600 * 600 then
+				if _SpellIGNITE and GetDistanceSqr(Qtarget, myHero) < 600 * 600 then
 					CastSpell(_SpellIGNITE, Qtarget)
 				end
 				CastSpell(_R, Qtarget)
 				if Menu.debug.Rdebug.RCastPrint then PrintChat("Casted R on target") end
-			elseif Rtarget and ((GetDistanceSqr(Rtarget.visionPos, myHero) < R.rangeSqr and DLib:IsKillable(Rtarget, GetCombo(Rtarget)) and (not Menu.Combo.AntiOverKill or not DLib:IsKillable(Rtarget, {_AQ})) and not DLib:IsKillable(Rtarget, {_Q, _W})) or (os.clock() - UseRTime < 10)) then
+			elseif Rtarget and ((GetDistanceSqr(Rtarget, myHero) < R.rangeSqr and DLib:IsKillable(Rtarget, GetCombo(Rtarget)) and (not Menu.Combo.AntiOverKill or not DLib:IsKillable(Rtarget, {_AQ})) and not DLib:IsKillable(Rtarget, {_Q, _W})) or (os.clock() - UseRTime < 10)) then
 				ItemManager:CastOffensiveItems(Rtarget)
-				if _SpellIGNITE and GetDistanceSqr(Rtarget.visionPos, myHero) < 600 * 600 then
+				if _SpellIGNITE and GetDistanceSqr(Rtarget, myHero) < 600 * 600 then
 					CastSpell(_SpellIGNITE, Rtarget)
 				end
 				CastSpell(_R, Rtarget)
@@ -825,7 +828,7 @@ function UseSpells(UseQ, UseW, UseE, UseEQ, UseR, forcedtarget)
 
 	if UseR and not Q:IsReady() and R:IsReady() and not DFGUsed then
 		for i, enemy in ipairs(GetEnemyHeroes()) do
-			if ValidTarget(enemy) and (not Menu.R.Targets[enemy.hash] or (os.clock() - UseRTime < 10)) and GetDistanceSqr(enemy.visionPos, myHero) < R.rangeSqr then
+			if ValidTarget(enemy) and (not Menu.R.Targets[enemy.hash] or (os.clock() - UseRTime < 10)) and GetDistanceSqr(enemy, myHero) < R.rangeSqr then
 				if DLib:IsKillable(enemy, GetUltCombo())  or (os.clock() - UseRTime < 10) then
 					if not DLib:IsKillable(enemy, {_Q, _E, _W})  or (os.clock() - UseRTime < 10) then
 						CastSpell(_R, enemy)
@@ -853,7 +856,7 @@ end
 
 function Combo()
 	SxOrb:DisableAttacks()
-	if not Q.IsReady() and not W.IsReady() and not E.IsReady() then
+	if not QREADY and not WREADY and not EREADY then
 		SxOrb:EnableAttacks()
 	end
 	UseSpells(Menu.Combo.UseQ, Menu.Combo.UseW, Menu.Combo.UseE, Menu.Combo.UseEQ, Menu.Combo.UseR)
@@ -873,10 +876,15 @@ function OnTick()
 	DrawEQIndicators = false
 	Zhonyas()
 	
-	if Recieved == 1 and W.IsReady() then
+	QREADY = (myHero:CanUseSpell(_Q) == READY)
+	WREADY = (myHero:CanUseSpell(_W) == READY)
+	EREADY = (myHero:CanUseSpell(_E) == READY)
+	RREADY = (myHero:CanUseSpell(_R) == READY)
+	
+	if Recieved == 1 and WREADY then
 		W.status = 1
 	end
-	if not W.IsReady() then W.status = 0 Recieved = 0 end
+	if not WREADY then W.status = 0 Recieved = 0 end
 	
 	if Menu.Combo.Enabled then
 		Combo()
@@ -910,7 +918,7 @@ function OnTick()
 		JungleSteal()
 	end
 
-	if Menu.Misc.MEQ and Q.IsReady() and E.IsReady() then
+	if Menu.Misc.MEQ and QREADY and EREADY then
 		DrawEQIndicators = true
 		local PosibleTargets = GetEnemyHeroes()
 		local ClosestTargetMouse 
@@ -1027,7 +1035,7 @@ function Farm()
 		end
 	end
 
-	if UseE and (not Q.IsReady() or not UseQ) then
+	if UseE and (not QREADY or not UseQ) then
 		local AllMinions = SelectUnits(EnemyMinions.objects, function(t) return ValidTarget(t) and GetDistanceSqr(t) < E.rangeSqr end)
 		local BestPos, BestHit = GetBestCircularFarmPosition(E.range, E.width, AllMinions)
 		if BestHit > 4 then
@@ -1083,7 +1091,7 @@ function JungleFarm()
 		if selectedTarget and selectedTarget.type == CloseMinion.type then
 			DrawJungleStealingIndicator = true
 			SxOrb:DisableAttacks()
-			if ValidTarget(selectedTarget) and DLib:IsKillable(selectedTarget, {_Q, _W}) and GetDistanceSqr(myHero, selectedTarget) <= W.rangeSqr and W.IsReady() then
+			if ValidTarget(selectedTarget) and DLib:IsKillable(selectedTarget, {_Q, _W}) and GetDistanceSqr(myHero, selectedTarget) <= W.rangeSqr and WREADY then
 				if W.status == 0 then
 					CastSpell(_W, selectedTarget.x, selectedTarget.z)
 					if Menu.debug.Wdebug.WCastPrint then PrintChat("Picked Jungle Monster with W") end
@@ -1116,7 +1124,7 @@ function JungleFarm()
 			end
 		end
 	elseif ValidTarget(FarMinion) and GetDistanceSqr(FarMinion) <= (Q.range + 588)^2 and GetDistanceSqr(FarMinion) > Q.rangeSqr and DLib:IsKillable(FarMinion, {_E}) then
-		if Q.IsReady() and E.IsReady() then
+		if QREADY and EREADY then
 			local QPos = Vector(myHero) + Q.range * (Vector(FarMinion) - Vector(myHero)):normalized()
 			CastSpell(_Q, QPos.x, QPos.z)
 			if Menu.debug.Qdebug.QCastPrint then PrintChat("Casted Q on far Jungle Monster") end
@@ -1146,7 +1154,7 @@ function JungleSteal()
 	local Blue = SelectUnits(JungleMinions.objects, function(t) return t.charName:lower():find("blue") and ValidTarget(t) end)
 
 	if GetDistance(Spots.PurpleBlue) <= 25 and Menu.Misc.JungleSteal.enabled then
-		if W.status == 0 and W.IsReady() and Q.IsReady() then
+		if W.status == 0 and WREADY and QREADY then
 			if ValidTarget(Blue) then
 				CastSpell(_W, Blue.x, Blue.z)
 				if W.status == 1 then
