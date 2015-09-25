@@ -54,6 +54,10 @@ Other features:
  
  
 Changelog:
+* v 2.7
+ Fixed W usage
+ Fixed Auto-E hopefully
+
 * v 2.5
  Fixed AA cancel
  Perfected Auto-E usage.
@@ -144,7 +148,7 @@ assert(load(Base64Decode("G0x1YVIAAQQEBAgAGZMNChoKAAAAAAAAAAAAAQIKAAAABgBAAEFAAA
 require "SxOrbwalk"
 require "VPrediction"
  
-local sversion = "2.6"
+local sversion = "2.7"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BoLFantastik/BoL/master/Fantastik Sivir.lua".."?rand="..math.random(1,10000)
@@ -468,13 +472,15 @@ function FarmW()
 end
 end
  
-function OnProcessSpell(unit, spell)
-		if unit == myHero and spell.name:lower():find("attack") then
-				if SivMenu.combokey and WREADY and SivMenu.Combo.comboW and GetDistance(target) <= 600 then
-						DelayAction(function() CastSpell(_W) end, spell.windUpTime + GetLatency() / 2000)
-				end
+function OnProcessAttack(unit, spell)
+	if unit == myHero and spell.name:lower():find("attack") then
+		if SivMenu.combokey and WREADY and SivMenu.Combo.comboW and GetDistance(target) <= 600 then
+			DelayAction(function() CastSpell(_W) end, spell.windUpTime + GetLatency() / 2000)
 		end
-	   
+	end
+end
+ 
+function OnProcessSpell(unit, spell)	   
 		if SivMenu.Extra.ESet.enabled and EREADY then
 				local jarvanAddition = unit.charName == "JarvanIV" and unit:CanUseSpell(_Q) ~= READY and _R or _Q
 						local isUnit = {
@@ -543,12 +549,12 @@ function OnProcessSpell(unit, spell)
 								['Xerath']      = {true, spell = _E,                  range = 1000,  projSpeed = 1200, },
 								['XinZhao']     = {true, spell = _E,                  range = 650,   projSpeed = 2000, },
 								['Zyra']        = {true, spell = _E,                  range = 1175,  projSpeed = 1400, },
+								['Swain']       = {true, spell = _W,                  range = 900,  projSpeed = math.huge, },
 						}
 						if unit.type == myHero.type and unit.team ~= myHero.team and isUnit[unit.charName] and GetDistance(unit) < 2000 and spell ~= nil then
 								if spell.name == (type(isUnit[unit.charName].spell) == 'number' and unit:GetSpellData(isUnit[unit.charName].spell).name or isUnit[unit.charName].spell) then
 										if spell.target ~= nil and spell.target.isMe or isUnit[unit.charName].spell == 'blindmonkqtwo' then
 												if EREADY then
-														E.target = unit
 														CastSpell(_E)
 												end
 										else
