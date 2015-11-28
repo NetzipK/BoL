@@ -1,4 +1,8 @@
-v 2.691
+*v 2.692
+ Fixed bugsplat issue
+ (Removed item casting temporarily due to bugsplats)
+
+*v 2.691
  Fixed error spam.
  Updated for LoL patch 5.23
 
