@@ -54,6 +54,9 @@ Other features:
  
  
 Changelog:
+* v 2.72
+ Removed Skin hacks
+
 * v 2.7
  Fixed W usage
  Fixed Auto-E hopefully
@@ -147,7 +150,7 @@ assert(load(Base64Decode("G0x1YVIAAQQEBAgAGZMNChoKAAAAAAAAAAAAAQIKAAAABgBAAEFAAA
 --[[            Auto Update             ]]
 require "VPrediction"
  
-local sversion = "2.71"
+local sversion = "2.72"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BoLFantastik/BoL/master/Fantastik Sivir.lua".."?rand="..math.random(1,10000)
@@ -355,9 +358,9 @@ function SMenu()
 		SivMenu.Extra:addSubMenu("Auto level spells", "autolev")
 		SivMenu.Extra.autolev:addParam("enabled", "Enable auto level spells", SCRIPT_PARAM_ONOFF, false)
 		SivMenu.Extra.autolev:addParam("lvlseq", "Select your auto level sequence: ", SCRIPT_PARAM_LIST, 1, {"R>Q>W>E", "R>W>Q>E", "R>E>Q>W"})
-		SivMenu.Extra:addSubMenu("Skin Hack - VIP ONLY/Not Working", "skinhax")
-		SivMenu.Extra.skinhax:addParam("enabled", "Enable Skin Hack", SCRIPT_PARAM_ONOFF, false)
-		SivMenu.Extra.skinhax:addParam("skinid", "Choose skin: ", SCRIPT_PARAM_LIST, 1, {"No Skin", "Warrior Princess", "Spectacular", "Huntress", "Bandit", "PAX", "Snowstorm"})
+	--	SivMenu.Extra:addSubMenu("Skin Hack - VIP ONLY/Not Working", "skinhax")
+	--	SivMenu.Extra.skinhax:addParam("enabled", "Enable Skin Hack", SCRIPT_PARAM_ONOFF, false)
+	--	SivMenu.Extra.skinhax:addParam("skinid", "Choose skin: ", SCRIPT_PARAM_LIST, 1, {"No Skin", "Warrior Princess", "Spectacular", "Huntress", "Bandit", "PAX", "Snowstorm"})
 		if _G.Evadeee_Loaded then
 				SivMenu.Extra:addParam("Evade", "Use Evadeee Integration", SCRIPT_PARAM_ONOFF, true)
 		end
