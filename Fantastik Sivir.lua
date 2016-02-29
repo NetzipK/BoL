@@ -54,6 +54,9 @@ Other features:
  
  
 Changelog:
+* v 2.73
+ FHPrediction support!
+
 * v 2.72
  Removed Skin hacks
 
@@ -150,7 +153,7 @@ assert(load(Base64Decode("G0x1YVIAAQQEBAgAGZMNChoKAAAAAAAAAAAAAQIKAAAABgBAAEFAAA
 --[[            Auto Update             ]]
 require "VPrediction"
  
-local sversion = "2.72"
+local sversion = "2.73"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BoLFantastik/BoL/master/Fantastik Sivir.lua".."?rand="..math.random(1,10000)
@@ -355,6 +358,9 @@ function SMenu()
 		SivMenu.Extra:addParam("Ignite", "Use Auto Ignite", SCRIPT_PARAM_ONOFF, true)
 		SivMenu.Extra:addParam("Hitchance", "Hitchance Combo", SCRIPT_PARAM_LIST, 2, {"LOW", "MEDIUM"})
 		SivMenu.Extra:addParam("HitchanceP", "Hitchance Poke", SCRIPT_PARAM_LIST, 2, {"LOW", "MEDIUM"})
+		if FHPrediction then
+			SivMenu.Extra:addParam("Prediction", "Prediction", SCRIPT_PARAM_LIST, 2, {"VPrediction", "FHPrediction"})
+		end
 		SivMenu.Extra:addSubMenu("Auto level spells", "autolev")
 		SivMenu.Extra.autolev:addParam("enabled", "Enable auto level spells", SCRIPT_PARAM_ONOFF, false)
 		SivMenu.Extra.autolev:addParam("lvlseq", "Select your auto level sequence: ", SCRIPT_PARAM_LIST, 1, {"R>Q>W>E", "R>W>Q>E", "R>E>Q>W"})
@@ -376,7 +382,14 @@ function KS(Target)
 		if QREADY and getDmg("Q", Target, myHero) > Target.health then
 				local CastPos = VP:GetLineCastPosition(Target, Qdelay, Qwidth, Qrange, Qspeed, myHero, false)
 				if GetDistance(Target) <= Qrange and QREADY then
+					if FHPrediction and SivMenu.Extra.Prediction == 2 then
+						local pos, hc, info = FHPrediction.GetPrediction("Q", target)
+						if hc > 0 then
+							CastSpell(_Q, pos.x, pos.z)
+						end
+					else
 						CastSpell(_Q, CastPos.x, CastPos.z)
+					end
 				end
 		end
 end
@@ -400,7 +413,14 @@ function Combo()
 				if QREADY and SivMenu.Combo.comboQ and SivMenu.Combo.targets[target.charName] then
 						local CastPosition, HitChance, CastPos = VP:GetLineCastPosition(target, Qdelay, Qwidth, Qrangec, Qspeed, myHero, false)
 						if HitChance >= SivMenu.Extra.Hitchance and GetDistance(CastPosition) <= Qrangec and QREADY then
+							if FHPrediction and SivMenu.Extra.Prediction == 2 then
+								local pos, hc, info = FHPrediction.GetPrediction("Q", target)
+								if hc > 0 then
+									CastSpell(_Q, pos.x, pos.z)
+								end
+							else
 								CastSpell(_Q, CastPosition.x, CastPosition.z)
+							end
 						end
 				end
 				if RREADY and SivMenu.Combo.comboR and GetDistance(target) <= 600 then
@@ -414,7 +434,14 @@ function Poke()
 				if SivMenu.Poke.pokeQ and QREADY and SivMenu.Combo.targets[target.charName] then
 						local CastPosition, HitChance, CastPos = VP:GetLineCastPosition(target, Qdelay, Qwidth, Qrange, Qspeed, myHero, false)
 						if HitChance >= SivMenu.Extra.HitchanceP and GetDistance(CastPosition) <= Qrange and QREADY then
+							if FHPrediction and SivMenu.Extra.Prediction == 2 then
+								local pos, hc, info = FHPrediction.GetPrediction("Q", target)
+								if hc > 0 then
+									CastSpell(_Q, pos.x, pos.z)
+								end
+							else
 								CastSpell(_Q, CastPosition.x, CastPosition.z)
+							end
 						end
 				end
 		end
