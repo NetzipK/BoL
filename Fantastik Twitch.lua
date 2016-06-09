@@ -2,7 +2,7 @@
   
   Fantastik Twitch BETA! - Twitch script by Fantastik <3
   
-  Last Update: 2 January 2016, Version 0.15
+  Last Update: 6 June 2016, Version 0.2
   
   Changelog:
     0.2:
