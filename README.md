@@ -1,4 +1,4 @@
-##<div align="center">Fantastik's script Repository</div>
+##<div align="center">Fantastik's script Repository
 ------------------
 
 | Champions  | Status | Thread |
@@ -12,3 +12,4 @@
 | Fizz       | Working   | [Link](http://botoflegends.com/forum/topic/40971-) |
 | Syndra     | Working   | [Link](http://botoflegends.com/forum/topic/42561-) |
 | Draven     | Working   | [Link](http://forum.botoflegends.com/topic/46091-) |
+</div>
