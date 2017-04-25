@@ -54,6 +54,12 @@ Other features:
  
  
 Changelog:
+* v 2.8
+ Fixed random spam on load
+ Added Pewalk & MMA support
+ Added Click target select
+ Fixed minor bugs
+
 * v 2.73
  FHPrediction support!
 
@@ -153,7 +159,7 @@ assert(load(Base64Decode("G0x1YVIAAQQEBAgAGZMNChoKAAAAAAAAAAAAAQIKAAAABgBAAEFAAA
 --[[            Auto Update             ]]
 require "VPrediction"
  
-local sversion = "2.73"
+local sversion = "2.8"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BoLFantastik/BoL/master/Fantastik Sivir.lua".."?rand="..math.random(1,10000)
@@ -192,10 +198,14 @@ local ts = TargetSelector(TARGET_LESS_CAST_PRIORITY, Qrange, DAMAGE_PHYSICAL, tr
 local Announcer = ""
 local isSX = false
 local isSAC = false
+local isPEW = false
+local isMMA = false
 local Spells = {_Q,_W,_E,_R}
 local Spells2 = {"Q","W","E","R"}
 local informationTable = {}
 local spellExpired = true
+
+local SelectedTarget = nil
  
  
 --[[    Drawings        ]]
@@ -206,24 +216,40 @@ colorText = ARGB(255,255,204,0)
 ----------------------------------------------
  
 function GetCustomTarget()
-		ts:update()
-		if _G.AutoCarry and ValidTarget(_G.AutoCarry.Crosshair:GetTarget()) then return _G.AutoCarry.Crosshair:GetTarget() end
-		if not _G.Reborn_Loaded then return ts.target end
-		return ts.target
+	ts:update()
+		if SelectedTarget ~= nil and ValidTarget(SelectedTarget, 1200) then
+        return SelectedTarget
+		elseif _G.Reborn_Loaded and _G.AutoCarry and _G.AutoCarry.Crosshair and ValidTarget(_G.AutoCarry.Crosshair:GetTarget()) then return _G.AutoCarry.Crosshair:GetTarget(1200)
+		elseif _G.MMA_IsLoaded and ValidTarget(_G.MMA_Target()) then return _G.MMA_Target(1200)
+		elseif _Pewalk and ValidTarget(_Pewalk.GetTarget()) then return _Pewalk.GetTarget(1200)
+		elseif not _G.Reborn_Loaded or not _G.MMA_IsLoaded or not _Pewalk then return ts.target end
+	--end
+
 end
  
 function OnLoad()
 		PrintChat("<font color=\"#00FF00\">Fantastik Sivir version ["..sversion.."] by Fantastik loaded.</font>")
-		if _G.Reborn_Loaded then
 		DelayAction(function()
-				PrintChat("<font color = \"#FFFFFF\">[Fantastik Sivir] </font><font color = \"#FF0000\">SAC Status:</font> <font color = \"#FFFFFF\">Successfully integrated.</font> </font>")
-				isSAC = true
-		end, 10)
-		elseif not _G.Reborn_Loaded then
+		if _G.Reborn_Loaded then
+			PrintChat("<font color = \"#6699ff\">[Fantastik Sivir] </font><font color = \"#FFFFFF\">SAC Status:</font> <font color = \"#6699ff\">Successfully integrated.</font> </font>")
+			SivMenu:addParam("SACON","[Sivir] SAC:R support is active.", 5, "")
+			isSAC = true
+		elseif _G.MMA_IsLoaded then
+			PrintChat("<font color = \"#6699ff\">[Fantastik Sivir] </font><font color = \"#FFFFFF\">MMA Status:</font> <font color = \"#6699ff\">Successfully integrated.</font> </font>")
+			SivMenu:addParam("MMAON","[Sivir] MMA support is active.", 5, "")
+			isMMA = true
+		elseif _Pewalk then
+			PrintChat("<font color = \"#6699ff\">[Fantastik Sivir] </font><font color = \"#FFFFFF\">Pewalk Status:</font> <font color = \"#6699ff\">Successfully integrated.</font> </font>")
+			SivMenu:addParam("PEWON","[Sivir] Pewalk support is active.", 5, "")
+			isPEW = true
+		elseif not _G.Reborn_Loaded or not _G.MMA_IsLoaded or not _Pewalk then
 			require "SxOrbwalk"
-			PrintChat("<font color = \"#FFFFFF\">[Sivir] </font><font color = \"#FF0000\">Orbwalker not found:</font> <font color = \"#FFFFFF\">SxOrbWalk integrated.</font> </font>")
+			PrintChat("<font color = \"#6699ff\">[Fantastik Sivir] </font><font color = \"#FFFFFF\">Orbwalker not found:</font> <font color = \"#6699ff\">SxOrbWalk integrated.</font> </font>")
+			SivMenu:addSubMenu("Orbwalker", "SxOrb")
+			SxOrb:LoadToMenu(SivMenu.SxOrb)
 			isSX = true
 		end
+	end, 10)
 		if _G.Evadeee_Loaded then
 		PrintChat("<font color=\"##58D3F7\"><b>Evadeee</b> found! You can use Evadeee integration!")
 		_G.Evadeee_Enabled = true
@@ -241,7 +267,7 @@ function OnTick()
 		end
 		Checks()
 	   
-		if ValidTarget(target) then
+		if ValidTarget(target) and target.type == myHero.type then
 				if SivMenu.Extra.KS then KS(target) end
 				if SivMenu.Extra.Ignite then AutoIgnite(target) end
 		end
@@ -281,28 +307,6 @@ function IgniteCheck()
 						ignite = SUMMONER_1
 		elseif myHero:GetSpellData(SUMMONER_2).name:find("summonerdot") then
 						ignite = SUMMONER_2
-		end
-end
- 
-function OnDraw()
-   
-   if SivMenu.Drawing.DrawQ then
-		 if QREADY then
-		 DrawCircle(myHero.x, myHero.y, myHero.z, Qrangec, 0xF7FE2E)
-		 end
-   end
-   
-		if SivMenu.Drawing.DrawT then
-				for i = 1, heroManager.iCount do
-						local target = heroManager:GetHero(i)
-						if ValidTarget(target) and target ~= nil then
-								local barPos = WorldToScreen(D3DXVECTOR3(target.x, target.y, target.z))
-								local PosX = barPos.x - 35
-								local PosY = barPos.y - 10
-							   
-								DrawText(TextList[KillText[i]], 16, PosX, PosY, colorText)
-						end
-				end
 		end
 end
  
@@ -361,6 +365,7 @@ function SMenu()
 		if FHPrediction then
 			SivMenu.Extra:addParam("Prediction", "Prediction", SCRIPT_PARAM_LIST, 2, {"VPrediction", "FHPrediction"})
 		end
+		SivMenu.Extra:addParam("Target", "Use Click target lock", SCRIPT_PARAM_ONOFF, true)
 		SivMenu.Extra:addSubMenu("Auto level spells", "autolev")
 		SivMenu.Extra.autolev:addParam("enabled", "Enable auto level spells", SCRIPT_PARAM_ONOFF, false)
 		SivMenu.Extra.autolev:addParam("lvlseq", "Select your auto level sequence: ", SCRIPT_PARAM_LIST, 1, {"R>Q>W>E", "R>W>Q>E", "R>E>Q>W"})
@@ -381,7 +386,7 @@ end
 function KS(Target)
 		if QREADY and getDmg("Q", Target, myHero) > Target.health then
 				local CastPos = VP:GetLineCastPosition(Target, Qdelay, Qwidth, Qrange, Qspeed, myHero, false)
-				if GetDistance(Target) <= Qrange and QREADY then
+				if GetDistance(Target) <= Qrange and QREADY and ValidTarget(Target) then
 					if FHPrediction and SivMenu.Extra.Prediction == 2 then
 						local pos, hc, info = FHPrediction.GetPrediction("Q", target)
 						if hc > 0 then
@@ -747,6 +752,94 @@ function calcDmg()
 						end
 				end
 		end    
+end
+ 
+-- Oldschool
+function DrawCircleNextLvl(x, y, z, radius, width, color, chordlength)
+	radius = radius or 300
+	quality = math.max(8,round(180/math.deg((math.asin((chordlength/(2*radius)))))))
+	quality = 2 * math.pi / quality
+	radius = radius*.92
+	local points = {}
+	for theta = 0, 2 * math.pi + quality, quality do
+		local c = WorldToScreen(D3DXVECTOR3(x + radius * math.cos(theta), y, z - radius * math.sin(theta)))
+		points[#points + 1] = D3DXVECTOR2(c.x, c.y)
+	end
+	DrawLines2(points, width or 1, color or 4294967295)
+end
+
+function round(num)
+	if num >= 0 then return math.floor(num+.5) else return math.ceil(num-.5) end
+end
+
+function DrawCircle2(x, y, z, radius, color)
+	local vPos1 = Vector(x, y, z)
+	local vPos2 = Vector(cameraPos.x, cameraPos.y, cameraPos.z)
+	local tPos = vPos1 - (vPos1 - vPos2):normalized() * radius
+	local sPos = WorldToScreen(D3DXVECTOR3(tPos.x, tPos.y, tPos.z))
+	if OnScreen({ x = sPos.x, y = sPos.y }, { x = sPos.x, y = sPos.y }) then
+		DrawCircleNextLvl(x, y, z, radius, 1, color, 80)
+	end
+end
+ 
+function OnWndMsg(Msg, Key)
+	if Msg == WM_LBUTTONDOWN and SivMenu.Extra.Target then
+		local dist = 0
+		local Selecttarget = nil
+		
+		for i, enemy in ipairs(GetEnemyHeroes()) do
+			if ValidTarget(enemy) and enemy.type == myHero.type then
+				if GetDistance(enemy, mousePos) <= dist or Selecttarget == nil then
+					dist = GetDistance(enemy, mousePos)
+					Selecttarget = enemy
+					
+				end
+			end
+		end
+		if Selecttarget and dist < 300 then
+			if SelectedTarget and Selecttarget.charName == SelectedTarget.charName then
+				
+				if SivMenu.Extra.Target then
+					PrintChat("<font color = \"#6699ff\">[Fantastik Sivir]</font><font color = \"#FFFFFF\"> Target Selector Status:</font> <font color = \"#6699ff\">New Target DESELECTED: </font><font color = \"#FFFFFF\">"..SelectedTarget.charName.."</font> </font>")
+				end
+				
+				SelectedTarget = nil
+			else
+				SelectedTarget = Selecttarget
+				
+				if SivMenu.Extra.Target then
+					PrintChat("<font color = \"#6699ff\">[Fantastik Sivir]</font><font color = \"#FFFFFF\"> Target Selector Status:</font> <font color = \"#6699ff\">New Target SELECTED: </font><font color = \"#FFFFFF\">"..SelectedTarget.charName.."</font> </font>")
+				end
+			end
+		end
+	end
+end
+ 
+ function OnDraw()
+   
+   if SivMenu.Drawing.DrawQ then
+		 if QREADY then
+		 DrawCircle2(myHero.x, myHero.y, myHero.z, Qrangec, ARGB(0, 0, 255, 0))
+		 end
+   end
+   
+		if SivMenu.Drawing.DrawT then
+				for i = 1, heroManager.iCount do
+						local target = heroManager:GetHero(i)
+						if ValidTarget(target) and target ~= nil then
+								local barPos = WorldToScreen(D3DXVECTOR3(target.x, target.y, target.z))
+								local PosX = barPos.x - 35
+								local PosY = barPos.y - 10
+							   
+								DrawText(TextList[KillText[i]], 16, PosX, PosY, colorText)
+						end
+				end
+		end
+		
+	if ValidTarget(SelectedTarget) then
+		DrawCircle(SelectedTarget.x, SelectedTarget.y, SelectedTarget.z, 100, 0xFFFFFF00)
+	end
+	
 end
  
 --[[    Announcer       ]]
